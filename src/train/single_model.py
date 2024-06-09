@@ -39,11 +39,11 @@ def mlflow_train_model(
     mlflow.sklearn.autolog()
 
     fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
-    full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+    # full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
     experiment_id = create_experiment(experiment_name)
 
     corr_path = f"/tmp/{model_name}_corr_plot.png"
-    plot_correlation_matrix_and_save(full_df[selected_features + [target_feature]], path = corr_path)
+    plot_correlation_matrix_and_save(train_df[selected_features + [target_feature]], path = corr_path)
 
 
     timestamp = datetime.now().isoformat().split(".")[0].replace(":", ".")
@@ -69,7 +69,7 @@ def mlflow_train_model(
 
         y_pred = model.predict(X_test)
 
-        fig1 = plot_time_series(full_df, x_col = 'event_timestamp', y_col = target_feature, y_label_name = target_feature_alias)
+        fig1 = plot_time_series(train_df, x_col = 'event_timestamp', y_col = target_feature, y_label_name = target_feature_alias)
         fig5 = plot_residuals(y_test, y_pred)
         fig7 = plot_prediction_error(y_test, y_pred)
         fig8 = plot_qq(y_test, y_pred)
