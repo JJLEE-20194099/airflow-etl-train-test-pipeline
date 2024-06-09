@@ -22,6 +22,7 @@ from feast.infra.offline_stores.contrib.postgres_offline_store.postgres import (
     PostgreSQLOfflineStore
 )
 
+from utils.plot import plot_correlation_matrix_and_save, plot_prediction_error, plot_qq, plot_residuals, plot_time_series
 from utils.single_model import create_model
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -31,10 +32,10 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-# @dag("train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
+@dag("train", tags = ["train_data"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    # @task(task_id="train", retries=2)
+    @task(task_id="train", retries=2)
     def train():
         mlflow.set_tracking_uri(os.getenv('MLFLOW_SERVER'))
         mlflow.sklearn.autolog()
@@ -67,8 +68,14 @@ def taskflow():
         timestamp = datetime.now().isoformat().split(".")[0].replace(":", ".")
         print(training_df)
         selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district']
+
+        training_df = training_df.sample(frac = 1)
+        X_train, y_train = training_df[selected_features].iloc[:10], training_df['target'][:10]
+        X_test, y_test = training_df[selected_features].iloc[30:100], training_df['target'][30:100]
+
+        plot_correlation_matrix_and_save(training_df[selected_features + ['target']].iloc[30:200])
         with mlflow.start_run(experiment_id=experiment_id, run_name=timestamp) as run:
-            clf.fit(training_df[selected_features].iloc[:10], training_df['target'][:10])
+            clf.fit(X_train, y_train)
             cv_results = clf.cv_results_
             best_index = clf.best_index_
             for score_name in [score for score in cv_results if "mean_test" in score]:
@@ -85,6 +92,21 @@ def taskflow():
                 pd.DataFrame(cv_results).to_csv(csv, index=False)
 
             mlflow.log_artifact(csv, "cv_results")
+
+            y_pred = clf.predict(X_test)
+
+            fig1 = plot_time_series(training_df, x_col = 'event_timestamp', y_col = 'target', y_label_name = 'Price (million/m2)')
+            fig5 = plot_residuals(y_test, y_pred)
+            fig7 = plot_prediction_error(y_test, y_pred)
+            fig8 = plot_qq(y_test, y_pred)
+
+            mlflow.log_figure(fig1, "time_series_price.png")
+            mlflow.log_figure(fig5, "residuals_plot.png")
+            mlflow.log_figure(fig7, "prediction_errors.png")
+            mlflow.log_figure(fig8, "qq_plot.png")
+
+            mlflow.log_artifact("/tmp/corr_plot.png")
+
 
             # MLflow already log best estimator, it is needed if we want different env
             # mlflow.sklearn.log_model(clf.best_estimator_, 'RandomForest', conda_env={
