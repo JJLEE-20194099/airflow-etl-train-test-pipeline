@@ -22,8 +22,8 @@ from feast.infra.offline_stores.contrib.postgres_offline_store.postgres import (
     PostgreSQLOfflineStore
 )
 
+from src.models.single_model.cat import create_model
 from utils.plot import plot_correlation_matrix_and_save, plot_prediction_error, plot_qq, plot_residuals, plot_time_series
-from utils.single_model import create_model
 from dotenv import load_dotenv
 load_dotenv(override=True)
 import os
@@ -32,7 +32,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-@dag("train", tags = ["train_data"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
+@dag("train_catboost_model", tags = ["train_catboost_model"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
     @task(task_id="train", retries=2)
@@ -57,7 +57,7 @@ def taskflow():
         print(training_df)
         clf = create_model()
 
-        experiment_name = 'realestate_test_training_phrase_1'
+        experiment_name = 'cat_realestate_test_training_phrase_1'
         existing_exp = mlflow.get_experiment_by_name(experiment_name)
         if not existing_exp:
             experiment_id = mlflow.create_experiment(experiment_name)
