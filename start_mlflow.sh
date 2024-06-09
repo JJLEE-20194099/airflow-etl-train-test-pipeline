@@ -1,1 +1,1 @@
-mlflow server --backend-store-uri postgresql://postgres:postgres@localhost:5432/datn --default-artifact-root file:/home/long/mlruns -h 0.0.0.0 -p 5000
+mlflow server --backend-store-uri postgresql://postgres:postgres@localhost:5432/datn --default-artifact-root file:/home/long/mlruns -h 0.0.0.0 -p 5000 --gunicorn-opts "--timeout 180"

@@ -22,19 +22,16 @@ from feast.infra.offline_stores.contrib.postgres_offline_store.postgres import (
     PostgreSQLOfflineStore
 )
 
-from utils.single_model import create_model
+from utils import create_model
 from dotenv import load_dotenv
 load_dotenv(override=True)
 import os
 
-import warnings
-warnings.filterwarnings('ignore')
 
-
-# @dag("train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
+@dag("train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
 def taskflow():
 
-    # @task(task_id="train", retries=2)
+    @task(task_id="train", retries=2)
     def train():
         mlflow.set_tracking_uri(os.getenv('MLFLOW_SERVER'))
         mlflow.sklearn.autolog()
@@ -51,34 +48,31 @@ def taskflow():
         #     end_date=datetime.now(),
         # ).to_df()
 
-        training_df = fs.get_saved_dataset(name="realestate_dataset_1").to_df()
+        training_df = fs.get_saved_dataset(name="dataset_test_api").to_df()
+        print(len(training_df))
 
-        print(training_df)
         clf = create_model()
 
         experiment_name = 'realestate_test_training_phrase_1'
         existing_exp = mlflow.get_experiment_by_name(experiment_name)
         if not existing_exp:
             experiment_id = mlflow.create_experiment(experiment_name)
-            print("Create Experiment Successfully")
         else:
             experiment_id = existing_exp.experiment_id
 
         timestamp = datetime.now().isoformat().split(".")[0].replace(":", ".")
         print(training_df)
-        selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district']
         with mlflow.start_run(experiment_id=experiment_id, run_name=timestamp) as run:
-            clf.fit(training_df[selected_features].iloc[:10], training_df['target'][:10])
+            clf.fit(training_df, training_df['label'])
             cv_results = clf.cv_results_
             best_index = clf.best_index_
             for score_name in [score for score in cv_results if "mean_test" in score]:
                 mlflow.log_metric(score_name, cv_results[score_name][best_index])
-                mlflow.log_metric(score_name.replace("mean","std", 1), cv_results[score_name.replace("mean","std", 1)][best_index])
+                mlflow.log_metric(score_name.replace("mean","std"), cv_results[score_name.replace("mean","std")][best_index])
 
             tempdir = tempfile.TemporaryDirectory().name
             os.mkdir(tempdir)
-            print(tempdir)
-            filename = f"test_catboost-{timestamp}-cv_results.csv"
+            filename = "%s-%s-cv_results.csv" % ('RandomForest', timestamp)
             csv = os.path.join(tempdir, filename)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
