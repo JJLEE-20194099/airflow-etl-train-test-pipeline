@@ -41,7 +41,8 @@ def mlflow_train_model(
         experiment_name = 'cat_realestate_test_training_phrase_1',
         selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
         target_feature = 'target',
-        target_feature_alias = 'Price (million/m2)'
+        target_feature_alias = 'Price (million/m2)',
+        model_name = 'catboost'
     ):
 
     mlflow.set_tracking_uri(os.getenv('MLFLOW_SERVER'))
@@ -88,5 +89,14 @@ def mlflow_train_model(
         mlflow.log_figure(fig8, "qq_plot.png")
 
         mlflow.log_artifact("/tmp/corr_plot.png")
+
+        mlflow.pyfunc.log_model(model_name, python_model=model,
+                            pip_requirements=["scikit-learn"],
+                            code_path=["./mlflow_train_model/"])
+
+        uri = f"runs:/{run.info.run_id}/{model_name}"
+
+    mlflow.end_run()
+    return uri
 
 
