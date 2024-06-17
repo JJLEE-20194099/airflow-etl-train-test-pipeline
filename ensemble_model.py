@@ -39,10 +39,10 @@ def taskflow():
             'rf_realestate_test_training_phrase_1'
         ]
 
-        full_df = pd.read_parquet('/home/long/long/datn-feast/data/realestate_dataset_1.parquet')
+        full_df = pd.read_parquet('/home/long/long/datn-feast/data/process_v1/process_data_7.csv')
 
-        train_df = full_df.iloc[:100]
-        test_df = full_df.iloc[100:200]
+        train_df = full_df.iloc[:-100]
+        test_df = full_df.iloc[-100:]
         target_feature = 'target'
         target_feature_alias = 'target'
 

@@ -39,6 +39,12 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+HCM_CONFIG = json.load(open('/home/long/long/datn-feast/feature_repo/src/config/featureset/full_version.json'))
+feature_dict = json.load(open(HCM_CONFIG['featureset_path'], 'r'))
+cat_cols = feature_dict['cat_cols']
+num_cols = feature_dict['num_cols']
+feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
+
 
 @dag("train_model", tags = ["train_model"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
@@ -60,14 +66,14 @@ def taskflow():
 
 
         fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
-        train_data_source_name = "realestate_dataset_1"
+        train_data_source_name = feast_dataset_name
         full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
 
-        train_df = full_df.iloc[:100]
-        test_df = full_df.iloc[100:200]
+        train_df = full_df.iloc[:-10954]
+        test_df = full_df.iloc[-10954:]
 
         target_feature = 'target'
-        target_feature_alias = 'Price (million/m2)'
+        target_feature_alias = 'Price (million/m2) / 100'
 
 
         train_cat_model_run_id = mlflow_train_model(
@@ -76,7 +82,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'cat_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'catboost'
@@ -88,7 +94,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'lgbm_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'lgbm'
@@ -100,7 +106,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'xgb_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'xgb'
@@ -112,7 +118,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'abr_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'abr'
@@ -124,7 +130,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'etr_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'etr'
@@ -136,7 +142,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'gbr_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'gbr'
@@ -148,7 +154,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'knr_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'knr'
@@ -160,7 +166,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'la_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'la'
@@ -172,7 +178,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'linear_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'linear'
@@ -184,7 +190,7 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'mlp_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'mlp'
@@ -196,13 +202,11 @@ def taskflow():
             test_df = test_df,
             train_data_source_name = train_data_source_name,
             experiment_name = 'rf_realestate_test_training_phrase_1',
-            selected_features = ['used_area', 'num_of_bedroom', 'num_of_bathroom', 'district'],
+            selected_features = num_cols,
             target_feature = target_feature,
             target_feature_alias = target_feature_alias,
             model_name = 'rf'
         )
-
-
 
     train()
 dag = taskflow()
