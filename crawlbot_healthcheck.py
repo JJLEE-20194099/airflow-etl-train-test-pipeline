@@ -34,4 +34,22 @@ def healthcheck_batdongsan():
         print('Log: ', res_data.text)
         time.sleep(10)
 
-healthcheck_batdongsan()
+def healthcheck_mogi():
+    page = random.randint(1, 50)
+    res_url = make_requests(f'{crawlbot_server}/mogi/crawl_url?page={page}')
+    if len(res_url.json()) == 15:
+        print('PASS HEALTHCHECK CRAWL PAGE')
+    else:
+        print('Healthcheck mogi fail')
+        print('Log: ', res_url.text)
+        time.sleep(o)
+    url = random.choice(res_url.json())
+    res_data = make_requests(f'{crawlbot_server}/mogi/crawl_data_by_url?url={url}')
+    if 'Thông tin chính' in res_data.json()['html_source']:
+        print('PASS HEALTHCHECK CRAWL DATA')
+    else:
+        print('Healthcheck mogi fail')
+        print('Log: ', res_data.text)
+        time.sleep(10)
+
+healthcheck_mogi()
