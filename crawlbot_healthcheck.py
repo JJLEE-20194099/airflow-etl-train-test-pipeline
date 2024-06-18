@@ -9,6 +9,8 @@ import requests
 from datetime import datetime
 import random
 
+crawlbot_server = os.getenv('CRAWLBOT_SERVER')
+
 def make_requests(url):
     res = requests.request("GET", url)
     if res.status_code == 200:
@@ -18,7 +20,6 @@ def make_requests(url):
         print('Log: ', res.text)
         return None
 
-crawlbot_server = os.getenv('CRAWLBOT_SERVER')
 
 def healthcheck_batdongsan():
     page = random.randint(1, 100)
@@ -52,4 +53,23 @@ def healthcheck_mogi():
         print('Log: ', res_data.text)
         time.sleep(10)
 
-healthcheck_mogi()
+dag = DAG(
+    dag_id='healthcheck',
+    schedule_interval='59 * * * *',
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+
+healthcheck_batdongsan = PythonOperator(
+    task_id='healthcheck_batdongsan',
+    python_callable=healthcheck_batdongsan,
+    dag=dag
+)
+
+healthcheck_mogi = PythonOperator(
+    task_id='healthcheck_mogi',
+    python_callable=healthcheck_mogi,
+    dag=dag
+)
+
+[healthcheck_batdongsan, healthcheck_mogi]
