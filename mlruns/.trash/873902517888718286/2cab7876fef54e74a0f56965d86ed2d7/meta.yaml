@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/873902517888718286/2cab7876fef54e74a0f56965d86ed2d7/artifacts
+deleted_time: 1718691062155
+end_time: 1718690515738
+entry_point_name: ''
+experiment_id: '873902517888718286'
+lifecycle_stage: deleted
+run_id: 2cab7876fef54e74a0f56965d86ed2d7
+run_name: dapper-skink-282
+run_uuid: 2cab7876fef54e74a0f56965d86ed2d7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718690499245
+status: 3
+tags: []
+user_id: long

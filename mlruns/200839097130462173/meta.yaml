@@ -1,6 +1,0 @@
-artifact_location: file:///mnt/long/airflow/dags/mlruns/200839097130462173
-creation_time: 1717962483071
-experiment_id: '200839097130462173'
-last_update_time: 1717962483071
-lifecycle_stage: active
-name: lgbm_realestate_test_training_phrase_1

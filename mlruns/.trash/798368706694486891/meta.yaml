@@ -1,0 +1,7 @@
+artifact_location: mlflow-artifacts:/798368706694486891
+creation_time: 1718690574367
+experiment_id: '798368706694486891'
+last_update_time: 1718691072161
+lifecycle_stage: deleted
+name: lgbm_realestate_test_training_phrase_1
+tags: {}

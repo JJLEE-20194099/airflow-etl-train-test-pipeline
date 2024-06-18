@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/873902517888718286/d0a0359768654a59986d95061ae7915a/artifacts
+deleted_time: 1718691062155
+end_time: 1718690566694
+entry_point_name: ''
+experiment_id: '873902517888718286'
+lifecycle_stage: deleted
+run_id: d0a0359768654a59986d95061ae7915a
+run_name: ambitious-gull-928
+run_uuid: d0a0359768654a59986d95061ae7915a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718690550052
+status: 3
+tags: []
+user_id: long
