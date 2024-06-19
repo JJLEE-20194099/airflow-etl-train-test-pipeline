@@ -23,7 +23,7 @@ load_dotenv(override=True)
 import os
 
 
-@dag("ingest", tags = ["ingest_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
+@dag(dag_id="ingest", tags = ["ingest_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
     @task(task_id="extract", retries=2)
