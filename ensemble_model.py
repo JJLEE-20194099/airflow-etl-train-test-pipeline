@@ -19,7 +19,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-@dag(dag_id="ensemble_model", tags = ["ensemble_model"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
+@dag("ensemble_model", tags = ["ensemble_model"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
     @task(task_id="ensemble_model", retries=2)

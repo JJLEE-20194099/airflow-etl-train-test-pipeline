@@ -18,7 +18,7 @@ import os
 
 
 
-@dag(dag_id="test", tags = ["test_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
+@dag("test", tags = ["test_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
 def taskflow():
     s3 = boto3.resource('s3',
             endpoint_url=os.getenv('MINIO_SERVER'),

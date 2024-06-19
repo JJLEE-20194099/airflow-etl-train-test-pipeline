@@ -48,7 +48,7 @@ all_cols = cat_cols + num_cols
 feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
 
 
-@dag(dag_id="train_hcm_knr_model", tags = ["train_hcm_knr_model"], schedule="*/59 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
+@dag("train_hcm_knr_model", tags = ["train_hcm_knr_model"], schedule="*/59 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
     @task(task_id="train_hcm_knr_model", retries=2)

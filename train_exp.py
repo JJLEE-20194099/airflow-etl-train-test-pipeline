@@ -28,7 +28,7 @@ load_dotenv(override=True)
 import os
 
 
-@dag(dag_id="train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
+@dag("train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
 def taskflow():
 
     @task(task_id="train", retries=2)
