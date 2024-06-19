@@ -48,7 +48,7 @@ all_cols = cat_cols + num_cols
 feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
 
 
-@dag("train_model", tags = ["train_model"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
+@dag("train_model", tags = ["train_model"], schedule="*/59 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
     @task(task_id="train_model", retries=2)
@@ -79,29 +79,29 @@ def taskflow():
         linear_model = linear.create_model()
 
 
-        train_cat_model_run_id = mlflow_train_model(
-            model = cat_model,
-            train_df = train_df,
-            test_df = test_df,
-            train_data_source_name = train_data_source_name,
-            experiment_name = 'cat_realestate_num_version_training',
-            selected_features = all_cols,
-            target_feature = target_feature,
-            target_feature_alias = target_feature_alias,
-            model_name = 'catboost'
-        )
+        # train_cat_model_run_id = mlflow_train_model(
+        #     model = cat_model,
+        #     train_df = train_df,
+        #     test_df = test_df,
+        #     train_data_source_name = train_data_source_name,
+        #     experiment_name = 'cat_realestate_num_version_training',
+        #     selected_features = all_cols,
+        #     target_feature = target_feature,
+        #     target_feature_alias = target_feature_alias,
+        #     model_name = 'catboost'
+        # )
 
-        train_lgbm_model_run_id = mlflow_train_model(
-            model = lgbm_model,
-            train_df = train_df,
-            test_df = test_df,
-            train_data_source_name = train_data_source_name,
-            experiment_name = 'lgbm_realestate_num_version_training',
-            selected_features = all_cols,
-            target_feature = target_feature,
-            target_feature_alias = target_feature_alias,
-            model_name = 'lgbm'
-        )
+        # train_lgbm_model_run_id = mlflow_train_model(
+        #     model = lgbm_model,
+        #     train_df = train_df,
+        #     test_df = test_df,
+        #     train_data_source_name = train_data_source_name,
+        #     experiment_name = 'lgbm_realestate_num_version_training',
+        #     selected_features = all_cols,
+        #     target_feature = target_feature,
+        #     target_feature_alias = target_feature_alias,
+        #     model_name = 'lgbm'
+        # )
 
         train_xgb_model_run_id = mlflow_train_model(
             model = xgb_model,
