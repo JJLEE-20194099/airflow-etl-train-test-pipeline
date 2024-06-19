@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import boto3
 from io import StringIO
 from sqlalchemy import create_engine
@@ -31,7 +31,7 @@ import os
 @dag("train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
 def taskflow():
 
-    @task(task_id="train", retries=2)
+    @task(task_id="train", retries=2,execution_timeout=timedelta(hours=24))
     def train():
         mlflow.set_tracking_uri(os.getenv('MLFLOW_SERVER'))
         mlflow.sklearn.autolog()

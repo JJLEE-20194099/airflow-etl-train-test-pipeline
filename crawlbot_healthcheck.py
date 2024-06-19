@@ -6,7 +6,7 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 import time
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 
 crawlbot_server = os.getenv('CRAWLBOT_SERVER')

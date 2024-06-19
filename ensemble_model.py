@@ -8,7 +8,7 @@ from src.train.single_model import mlflow_train_model
 from airflow import DAG
 from airflow.decorators import task, dag
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 
@@ -22,7 +22,7 @@ warnings.filterwarnings('ignore')
 @dag("ensemble_model", tags = ["ensemble_model"], schedule="*/1 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    @task(task_id="ensemble_model", retries=2)
+    @task(task_id="ensemble_model", retries=2,execution_timeout=timedelta(hours=24))
     def ensemble_model():
 
         experiment_name_list = [

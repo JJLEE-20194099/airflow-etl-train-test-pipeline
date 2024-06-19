@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import boto3
 from io import StringIO
 from sqlalchemy import create_engine
@@ -51,7 +51,7 @@ feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
 @dag("train_hcm_linear_model", tags = ["train_hcm_linear_model"], schedule="*/59 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    @task(task_id="train_hcm_linear_model", retries=2)
+    @task(task_id="train_hcm_linear_model", retries=2,execution_timeout=timedelta(hours=24))
     def train():
 
         fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))

@@ -1,7 +1,7 @@
 import pendulum
 import os
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from feast import FeatureStore
 
 import mlflow

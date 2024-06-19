@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import boto3
 from io import StringIO
 
@@ -26,7 +26,7 @@ import os
 @dag("ingest", tags = ["ingest_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    @task(task_id="extract", retries=2)
+    @task(task_id="extract", retries=2,execution_timeout=timedelta(hours=24))
     def extract():
 
 
@@ -42,7 +42,7 @@ def taskflow():
         print(csvstring)
         return csvstring
 
-    @task(task_id="transform", retries=2)
+    @task(task_id="transform", retries=2,execution_timeout=timedelta(hours=24))
     def tranform_and_load(csv):
         # if we expect really large file: arrow, spark, ..
         df = pd.read_csv(StringIO(csv))

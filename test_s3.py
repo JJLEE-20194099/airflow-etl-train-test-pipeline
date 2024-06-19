@@ -4,7 +4,7 @@ s3_sensor = S3KeySensor(
             poke_interval=60,
             timeout=180,
             soft_fail=False,
-            retries=2,
+            retries=2,execution_timeout=timedelta(hours=24)),
             bucket_key='train_auto.csv',
             bucket_name='train',
             aws_conn_id='aws_default')
