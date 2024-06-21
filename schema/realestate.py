@@ -122,8 +122,8 @@ class RealEstateData(BaseModel):
             field_values['ward'] = full_ward
             field_values['street'] = full_street
 
-        field_values['w'] = field_values['w'] if field_values['w'] != -1 else field_values['frontWidth']
-        field_values['h'] = field_values['h'] if field_values['h'] != -1 else field_values['landSize'] / field_values['w']
+        field_values['w'] = field_values['w'] if 'w' in field_values and field_values['w'] != -1 else field_values['frontWidth']
+        field_values['h'] = field_values['h'] if 'h' in field_values and field_values['h'] != -1 else field_values['landSize'] / field_values['w']
 
 
         return field_values
