@@ -20,6 +20,7 @@ from enum import Enum
 
 from schema.preprocess.facility import count_facility_inference
 from schema.realestate import RealEstateData
+from schema.preprocess.encode import encoder_dict
 import time
 
 
@@ -43,5 +44,19 @@ def predict_realestate(body:RealEstateData):
 
     facility_count_dict = count_facility_inference(body['latlon'].lat, body['latlon'].lon)
     body = {**body, **facility_count_dict}
+
+    for col in [
+        "city",
+        "street",
+        "ward",
+        "district",
+        "street",
+        "certificateOfLandUseRight",
+        "typeOfRealEstate",
+        "facade",
+        "houseDirection",
+        "accessibility"
+    ]:
+        body[col] = encoder_dict[col][body[col]]
 
     return body

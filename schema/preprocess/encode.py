@@ -15,3 +15,17 @@ facade_dict = {"oneSideOpen": 0, "threeSideOpen": 1, "twoSideOpen": 2, "fourSide
 houseDirection_dict = {"NaN": 0, "southeast": 1, "southwest": 2, "northeast": 3, "northwest": 4, "south": 5, "east": 6, "west": 7, "north": 8}
 
 accessibility_dict = {"notInTheAlley": 0, "fitThreeCars": 1, "parkCar": 2, "fitOneCarAndOneMotorbike": 3, "fitTwoCars": 4, "theBottleNeckPoint": 5, "narrorRoad": 6}
+
+
+encoder_dict = {
+    "city": city_dict,
+    "street": street_dict,
+    "ward": ward_dict,
+    "district": district_dict,
+    "street": street_dict,
+    "certificateOfLandUseRight": certificateOfLandUseRight_dict,
+    "typeOfRealEstate": typeOfRealEstate_dict,
+    "facade": facade_dict,
+    "houseDirection": houseDirection_dict,
+    "accessibility": accessibility_dict
+}

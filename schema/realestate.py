@@ -161,6 +161,9 @@ class RealEstateData(BaseModel):
             field_values['ward'] = full_ward
             field_values['street'] = full_street
 
+
+        field_values["city"] = "hồ chí minh" if field_values["city"] == "hcm" else "hà nội"
+
         return field_values
 
 
