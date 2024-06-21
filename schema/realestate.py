@@ -13,6 +13,43 @@ class PrefixDistrictEnum(str, Enum):
     level_1 = 'quận'
     level_2 = 'huyện'
 
+class TypeOfRealEstateEnum(str, Enum):
+    condominium = "condominium"
+    privateProperty = "privateProperty"
+    privateLand = "privateLand"
+    townhouse = "townhouse"
+    semiDetachedVilla = "semiDetachedVilla"
+    otherTypesOfProperty = "otherTypesOfProperty"
+    shophouse = "shophouse"
+    resort = "resort"
+
+class FacadeEnum(str, Enum):
+    oneSideOpen = "oneSideOpen"
+    threeSideOpen = "threeSideOpen"
+    twoSideOpen = "twoSideOpen"
+    fourSideOpen = "fourSideOpen"
+
+class HouseDirectionEnum(str, Enum):
+    southeast = "southeast"
+    southwest = "southwest="
+    northeast = "northeast"
+    northwest = "northwest"
+    south = "south"
+    east = "east"
+    west = "west"
+    north = "north"
+
+class AccessibilityEnum(str, Enum):
+    notInTheAlley = "notInTheAlley"
+    fitThreeCars = "fitThreeCars"
+    parkCar = "notInTheAlley"
+    fitOneCarAndOneMotorbike = "fitOneCarAndOneMotorbike"
+    fitTwoCars = "fitTwoCars"
+    theBottleNeckPoint = "theBottleNeckPoint"
+    narrorRoad = "narrorRoad"
+
+
+
 data = json.load(open('schema/expectations/address.json', 'r'))
 
 class RealEstateData(BaseModel):
@@ -27,6 +64,11 @@ class RealEstateData(BaseModel):
     numberOfLivingRooms: Optional[float] = 3
 
     certificateOfLandUseRight: Optional[bool] = True
+
+    typeOfRealEstate: TypeOfRealEstateEnum = "privateLand"
+    facade: FacadeEnum = "oneSideOpen"
+    houseDirection: HouseDirectionEnum = "east"
+    accessibility: AccessibilityEnum = "fitThreeCars"
 
     endWidth: float
     frontRoadWidth: float
