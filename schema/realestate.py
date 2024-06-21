@@ -49,6 +49,11 @@ class AccessibilityEnum(str, Enum):
     narrorRoad = "narrorRoad"
 
 
+class ModelVersionEnum(str, Enum):
+    full_features = 'full_features'
+    full_features_gmm = 'full_features_gmm'
+    full_features_gmm_pca = 'full_features_gmm_pca'
+
 
 data = json.load(open('schema/expectations/address.json', 'r'))
 
@@ -75,6 +80,8 @@ class RealEstateData(BaseModel):
     frontWidth: float
 
     latlon: GeolocationModel
+
+    version: ModelVersionEnum = 'full_features'
 
     @model_validator(mode='before')
     def validate_compatibility_params_and_strategy_type(cls, field_values):
