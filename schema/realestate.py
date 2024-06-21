@@ -65,10 +65,10 @@ class RealEstateData(BaseModel):
 
     certificateOfLandUseRight: Optional[bool] = True
 
-    typeOfRealEstate: TypeOfRealEstateEnum = "privateLand"
-    facade: FacadeEnum = "oneSideOpen"
-    houseDirection: HouseDirectionEnum = "east"
-    accessibility: AccessibilityEnum = "fitThreeCars"
+    typeOfRealEstate: Optional[TypeOfRealEstateEnum] = "privateLand"
+    facade: Optional[FacadeEnum] = "oneSideOpen"
+    houseDirection: Optional[HouseDirectionEnum] = "east"
+    accessibility: Optional[AccessibilityEnum] = "fitThreeCars"
 
     endWidth: float
     frontRoadWidth: float

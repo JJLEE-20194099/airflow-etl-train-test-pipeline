@@ -10,12 +10,14 @@ def scale_data(obj):
     obj['landSize_ratio'] = obj['landSize'] / obj['acreage']
 
     mean_land_size_df = mean_land_size_df_dict[obj['city']]
-    obj['meanLandSize'] = mean_land_size_df[mean_land_size_df_dict['administrative_genre'] == obj['administrative_genre']].iloc[0]['meanLandSize']
+    obj['meanLandSize'] = mean_land_size_df[mean_land_size_df['administrative_genre'] == obj['administrative_genre']].iloc[0]['meanLandSize']
 
     obj['landSize_ratio_with_administrative_genre'] = obj['landSize'] / obj['meanLandSize']
     obj['acreage_ratio_with_meanLandSize'] = obj['acreage'] / obj['meanLandSize']
 
     del obj['meanLandSize']
+
+    return obj
 
 
 
