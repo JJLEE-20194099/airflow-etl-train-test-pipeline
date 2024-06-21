@@ -93,5 +93,4 @@ def predict_realestate(body:RealEstateData):
     pca_dict = get_pca_feature(body)
     body = {**body, **pca_dict}
 
-
-    # return body
+    return body

@@ -177,7 +177,6 @@ rename_dict = {'numberOfFloors': 'numberOfFloors',
  'distance_hcm_Hàng Bài': 'distance_hcm_HangBai',
  'distance_hcm_Phố Hai Bà Trưng(Hoàn Kiếm)': 'distance_hcm_PhoHaiBaTrungHoanKiem',
  'distance_district': 'distance_district',
- 'target': 'target',
  'nearest_0_lat': 'nearest_0_lat',
  'nearest_0_lon': 'nearest_0_lon',
  'nearest_0_district': 'nearest_0_district',
@@ -394,15 +393,13 @@ def get_pca_feature(obj):
     for k in rename_dict.keys():
         rename_obj[rename_dict[k]] = obj[k]
 
-    df = pd.DataFrame([obj])
+    df = pd.DataFrame([rename_obj])
 
     pca = load('schema/preprocess/data/pca/hcm_pca.joblib')
     pca_data = pca.transform(df[num_cols])[0]
 
     rename_obj['PC1'] = pca_data[0].item()
     rename_obj['PC2'] = pca_data[1].item()
-
-    print(rename_obj['PC1'], rename_obj['PC2'])
 
     return rename_obj
 
