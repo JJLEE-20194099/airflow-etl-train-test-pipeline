@@ -40,6 +40,8 @@ def predict_realestate(body:RealEstateData):
     body['w'] = body['w'] if 'w' in body and body['w'] != -1 else body['frontWidth']
     body['h'] = body['h'] if 'h' in body and body['h'] != -1 else body['landSize'] / body['w']
 
-    print(count_facility_inference(body['latlon'].lat, body['latlon'].lon))
+
+    facility_count_dict = count_facility_inference(body['latlon'].lat, body['latlon'].lon)
+    body = {**body, **facility_count_dict}
 
     return body

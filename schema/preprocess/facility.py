@@ -127,13 +127,12 @@ def count_facility_inference(lat, lon):
         if check_df.shape[0]:
             num_of_facility = check_df.iloc[0].to_dict()
             del num_of_facility['lat'], num_of_facility['lon']
-            print(num_of_facility)
         else:
             num_of_facility_dict = {}
             num_of_facility = count_facilities(lat, lon, distance=distance)
 
         obj = rename_facility_col(num_of_facility, means_of_facility, distance)
 
-        result.update(obj)
+        result = {**result, **obj}
 
     return result
