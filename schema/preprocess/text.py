@@ -235,3 +235,5 @@ def remove_special_character(text):
     return " ".join(words)
 
 
+def concat(a, b):
+    return f'{a} - {b}'

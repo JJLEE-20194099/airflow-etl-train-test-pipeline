@@ -3,7 +3,7 @@ from pydantic import BaseModel, model_validator
 from typing import Union, List, Optional
 import json
 
-from schema.preprocess.text import preprocess_text
+from schema.preprocess.text import concat, preprocess_text
 
 class GeolocationModel(BaseModel):
     latitude: float
@@ -26,6 +26,13 @@ class RealEstateData(BaseModel):
     numberOfBathRooms: Optional[float] = 3
     numberOfLivingRooms: Optional[float] = 3
 
+    certificateOfLandUseRight: Optional[bool] = True
+
+    endWidth: float
+    frontRoadWidth: float
+
+
+
     @model_validator(mode='before')
     def validate_compatibility_params_and_strategy_type(cls, field_values):
 
@@ -36,13 +43,17 @@ class RealEstateData(BaseModel):
         landSize = field_values['landSize']
         street = field_values['street']
         prefixDistrict = field_values['prefixDistrict']
-
-        if city is None:
-            assert  "Missing City"
+        numberOfFloors = field_values['numberOfFloors']
 
 
-        if city not in ["hcm", "hn"]:
-            assert city in ["hcm", "hn"], "Valid cities: hcm, hn"
+
+        assert city, "Missing City"
+        assert district, "Missing District"
+        assert ward, "Missing Ward"
+        assert street, "Missing Street"
+        assert city in ["hcm", "hn"], "Valid cities: hcm, hn"
+        assert numberOfFloors < 100, "Invalid value: numberOfFloors < 100"
+
 
         if city == "hn":
 
@@ -55,6 +66,7 @@ class RealEstateData(BaseModel):
             for key in ['ward', 'district', 'street', 'prefixDistrict']:
                 field_values[key] = preprocess_text(field_values[key])
 
+
             if district in ['mê linh',
                 'ba vì',
                 'phúc thọ',
@@ -63,7 +75,6 @@ class RealEstateData(BaseModel):
                 'sơn tây',
                 'quốc oai',
                 'quốc oai']:
-
                 field_values['district'] = 'suburb_west'
 
             if district in ['sóc sơn', 'đan phượng']:
@@ -76,6 +87,27 @@ class RealEstateData(BaseModel):
                 'chương mỹ'
             ]:
                 field_values['district'] = 'suburb_south'
+
+            full_ward = concat(field_values['district'], field_values['ward'])
+            full_street = concat(full_ward, field_values['street'])
+
+            print(full_ward)
+
+            assert full_ward in data[city]["full_ward"], f'Ward {ward} not belong to District {district} - Valid: {data[city]["full_ward"]}'
+            assert full_street in data[city]["full_street"], f'Street {street} not belong to Ward{ward} - District {district} - Valid: {data[city]["full_street"]}'
+
+            field_values['ward'] = full_ward
+            field_values['ward'] = full_ward
+
+        else:
+            assert  district in data[city]["district"], f"Valid districts: {data[city]['district']}"
+
+            assert  ward in data[city]["ward"], f"Valid wards: {data[city]['ward']}"
+
+            assert  street in data[city]["street"], f"Valid streets: {data[city]['street']}"
+
+            for key in ['ward', 'district', 'street', 'prefixDistrict']:
+                field_values[key] = preprocess_text(field_values[key])
 
         return field_values
 
