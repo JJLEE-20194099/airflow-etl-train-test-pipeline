@@ -1,3 +1,5 @@
+import json
+
 cat_cols = ['nearest_3_street',
  'nearest_2_street',
  'nearest_4_ward',
@@ -34,10 +36,23 @@ cat_cols = ['nearest_3_street',
  'nearest_7_ward',
  'nearest_1_ward']
 
-def fillna_cat(obj):
+def fillna(obj):
     for col in cat_cols:
         if obj[col] is None:
             obj[col] = 100
+
+    city = obj['city']
+
+    if city == 0:
+        mean_dict = json.load(open('schema/preprocess/data/json/hcm_mean_num_col.json', 'r'))
+        num_cols =  json.load(open('/mnt/long/long/datn-feast/data/featureset/hcm_v1.json', 'r'))['num_cols']
+    else:
+        mean_dict = json.load(open('schema/preprocess/data/json/hn_mean_num_col.json', 'r'))
+        num_cols = json.load(open('/mnt/long/long/datn-feast/data/featureset/hn_v1.json', 'r'))['num_cols']
+    for col in num_cols:
+        if obj[col]:
+            continue
+        obj[col] = mean_dict[col]
 
     return obj
 

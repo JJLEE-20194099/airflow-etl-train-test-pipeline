@@ -50,9 +50,11 @@ class AccessibilityEnum(str, Enum):
 
 
 class ModelVersionEnum(str, Enum):
-    full_features = 'full_features'
-    full_features_gmm = 'full_features_gmm'
-    full_features_gmm_pca = 'full_features_gmm_pca'
+    v3 = 'v3'
+    v2 = 'v2'
+    v1 = 'v1'
+    v0 = 'v0'
+    v4 = 'v4'
 
 
 data = json.load(open('schema/expectations/address.json', 'r'))

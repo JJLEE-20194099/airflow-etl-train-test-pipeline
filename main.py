@@ -20,7 +20,7 @@ from enum import Enum
 
 from schema.preprocess.distance_tool import get_distance_feature
 from schema.preprocess.facility import count_facility_inference, get_population_feature, log_val
-from schema.preprocess.fillna import fillna_cat
+from schema.preprocess.fillna import fillna
 from schema.preprocess.gmm_tool import get_gmm_feature
 from schema.preprocess.pca_tool import get_pca_feature
 from schema.preprocess.scale import scale_data
@@ -87,13 +87,14 @@ def predict_realestate(body:RealEstateData):
     nearest_dict = get_nearest_feature(body['lat'], body['lon'])
     body = {**body, **nearest_dict}
     body = scale_data(body)
-    body = fillna_cat(body)
-
+    body = fillna(body)
     gmm_dict = get_gmm_feature(body)
     body = {**body, **gmm_dict}
 
+
     pca_dict = get_pca_feature(body)
     body = {**body, **pca_dict}
+
 
     infer_cols = get_inference_cols_by_name(city = body['city'], version = body['version'])
 
