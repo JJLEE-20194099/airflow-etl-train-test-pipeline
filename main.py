@@ -18,7 +18,9 @@ import regex as re
 from datetime import datetime
 from enum import Enum
 
+from schema.preprocess.facility import count_facility_inference
 from schema.realestate import RealEstateData
+import time
 
 
 app = FastAPI()
@@ -32,4 +34,12 @@ def healthcheck():
 
 @app.post("/predict-realestate")
 def predict_realestate(body:RealEstateData):
+
+    body = dict(body)
+
+    body['w'] = body['w'] if 'w' in body and body['w'] != -1 else body['frontWidth']
+    body['h'] = body['h'] if 'h' in body and body['h'] != -1 else body['landSize'] / body['w']
+
+    print(count_facility_inference(body['latlon'].lat, body['latlon'].lon))
+
     return body

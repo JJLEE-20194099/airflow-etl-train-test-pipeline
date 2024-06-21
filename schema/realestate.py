@@ -6,8 +6,8 @@ import json
 from schema.preprocess.text import concat, preprocess_text
 
 class GeolocationModel(BaseModel):
-    latitude: float
-    longitude: float
+    lat: float
+    lon: float
 
 class PrefixDistrictEnum(str, Enum):
     level_1 = 'quận'
@@ -32,10 +32,7 @@ class RealEstateData(BaseModel):
     frontRoadWidth: float
     frontWidth: float
 
-    w: Optional[float] = -1
-    h: Optional[float] = -1
-
-
+    latlon: GeolocationModel
 
     @model_validator(mode='before')
     def validate_compatibility_params_and_strategy_type(cls, field_values):
@@ -121,10 +118,6 @@ class RealEstateData(BaseModel):
 
             field_values['ward'] = full_ward
             field_values['street'] = full_street
-
-        field_values['w'] = field_values['w'] if 'w' in field_values and field_values['w'] != -1 else field_values['frontWidth']
-        field_values['h'] = field_values['h'] if 'h' in field_values and field_values['h'] != -1 else field_values['landSize'] / field_values['w']
-
 
         return field_values
 
