@@ -31,7 +31,7 @@ import os
 @dag("train", tags = ["train_data"], schedule="*/5 * * * *", catchup=False, start_date=datetime(2023, 1, 1))
 def taskflow():
 
-    @task(task_id="train", retries=2,execution_timeout=timedelta(hours=24))
+    @task(task_id="train", retries=0)
     def train():
         mlflow.set_tracking_uri(os.getenv('MLFLOW_SERVER'))
         mlflow.sklearn.autolog()

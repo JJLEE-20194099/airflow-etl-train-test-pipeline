@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/459966765635255019/c205fddd066f40638057e98d27d15bbc/artifacts
+deleted_time: 1718817250521
+end_time: 1718694488846
+entry_point_name: ''
+experiment_id: '459966765635255019'
+lifecycle_stage: deleted
+run_id: c205fddd066f40638057e98d27d15bbc
+run_name: amazing-gnat-689
+run_uuid: c205fddd066f40638057e98d27d15bbc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718691079705
+status: 3
+tags: []
+user_id: long

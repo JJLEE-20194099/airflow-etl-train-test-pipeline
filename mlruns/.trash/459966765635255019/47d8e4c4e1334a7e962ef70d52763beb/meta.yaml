@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/459966765635255019/47d8e4c4e1334a7e962ef70d52763beb/artifacts
+deleted_time: 1718817250521
+end_time: 1718694467824
+entry_point_name: ''
+experiment_id: '459966765635255019'
+lifecycle_stage: deleted
+run_id: 47d8e4c4e1334a7e962ef70d52763beb
+run_name: receptive-robin-564
+run_uuid: 47d8e4c4e1334a7e962ef70d52763beb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718694423640
+status: 3
+tags: []
+user_id: long

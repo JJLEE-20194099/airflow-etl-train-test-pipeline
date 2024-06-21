@@ -27,14 +27,14 @@
 #             aws_session_token=None,
 #             verify=False)
 
-#     @task(task_id="extract", retries=2,execution_timeout=timedelta(hours=24))
+#     @task(task_id="extract", retries=0)
 #     def extract():
 #         obj = s3.Object(bucket_name='test', key='test_auto.csv').get()
 #         csvstring = obj['Body'].read().decode("utf-8")
 #         # s3.Object(bucket_name='test', key='test_auto.csv').delete()
 #         return csvstring
 
-#     @task(task_id="predict", retries=2,execution_timeout=timedelta(hours=24))
+#     @task(task_id="predict", retries=0)
 #     def tranform_and_predict(csv):
 #         df = pd.read_csv(StringIO(csv))
 #         drop_columns = ['label', 'amt']

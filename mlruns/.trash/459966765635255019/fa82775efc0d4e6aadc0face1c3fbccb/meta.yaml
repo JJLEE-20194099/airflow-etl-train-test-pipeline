@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/459966765635255019/fa82775efc0d4e6aadc0face1c3fbccb/artifacts
+deleted_time: 1718817250521
+end_time: 1718694526192
+entry_point_name: ''
+experiment_id: '459966765635255019'
+lifecycle_stage: deleted
+run_id: fa82775efc0d4e6aadc0face1c3fbccb
+run_name: peaceful-elk-583
+run_uuid: fa82775efc0d4e6aadc0face1c3fbccb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718691178837
+status: 3
+tags: []
+user_id: long

@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/459966765635255019/41575d12e4c240a5a71486771ec738e3/artifacts
+deleted_time: 1718817250521
+end_time: 1718695124254
+entry_point_name: ''
+experiment_id: '459966765635255019'
+lifecycle_stage: deleted
+run_id: 41575d12e4c240a5a71486771ec738e3
+run_name: whimsical-wasp-802
+run_uuid: 41575d12e4c240a5a71486771ec738e3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718695084831
+status: 3
+tags: []
+user_id: long

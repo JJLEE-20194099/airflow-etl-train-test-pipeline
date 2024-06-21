@@ -48,10 +48,10 @@
 # feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
 
 
-# @dag("train_model", tags = ["train_model"], schedule="*/59 * * * *", catchup=False, start_date=datetime(2024, 6, 6))
+# @dag("train_model", tags = ["train_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
 # def taskflow():
 
-#     @task(task_id="train_model", retries=2,execution_timeout=timedelta(hours=24))
+#     @task(task_id="train_model", retries=0)
 #     def train():
 
 #         fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
