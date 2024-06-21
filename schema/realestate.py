@@ -91,13 +91,12 @@ class RealEstateData(BaseModel):
             full_ward = concat(field_values['district'], field_values['ward'])
             full_street = concat(full_ward, field_values['street'])
 
-            print(full_ward)
 
             assert full_ward in data[city]["full_ward"], f'Ward {ward} not belong to District {district} - Valid: {data[city]["full_ward"]}'
-            assert full_street in data[city]["full_street"], f'Street {street} not belong to Ward{ward} - District {district} - Valid: {data[city]["full_street"]}'
+            assert full_street in data[city]["full_street"], f'Street {street} not belong to Ward {ward} - District {district} - Valid: {data[city]["full_street"]}'
 
             field_values['ward'] = full_ward
-            field_values['ward'] = full_ward
+            field_values['street'] = full_street
 
         else:
             assert  district in data[city]["district"], f"Valid districts: {data[city]['district']}"
@@ -108,6 +107,16 @@ class RealEstateData(BaseModel):
 
             for key in ['ward', 'district', 'street', 'prefixDistrict']:
                 field_values[key] = preprocess_text(field_values[key])
+
+            full_ward = concat(field_values['district'], field_values['ward'])
+            full_street = concat(full_ward, field_values['street'])
+
+
+            assert full_ward in data[city]["full_ward"], f'Ward {ward} not belong to District {district} - Valid: {data[city]["full_ward"]}'
+            assert full_street in data[city]["full_street"], f'Street {street} not belong to Ward {ward} - District {district} - Valid: {data[city]["full_street"]}'
+
+            field_values['ward'] = full_ward
+            field_values['street'] = full_street
 
         return field_values
 
