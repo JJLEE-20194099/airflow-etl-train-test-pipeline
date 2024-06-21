@@ -237,3 +237,16 @@ def remove_special_character(text):
 
 def concat(a, b):
     return f'{a} - {b}'
+
+s1 = u'ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ'
+s0 = u'AAAAEEEIIOOOOUUYaaaaeeeiioooouuyAaDdIiUuOoUuAaAaAaAaAaAaAaAaAaAaAaAaEeEeEeEeEeEeEeEeIiIiOoOoOoOoOoOoOoOoOoOoOoOoUuUuUuUuUuUuUuYyYyYyYy'
+def remove_accents(input_str):
+	s = ''
+	for c in input_str:
+		if c in s1:
+			s += s0[s1.index(c)]
+		else:
+			s += c
+
+	s = "".join([c for c in list(s) if c == '_' or c.isalnum()])
+	return s

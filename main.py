@@ -17,10 +17,12 @@ from typing import Union, List, Optional
 import regex as re
 from datetime import datetime
 from enum import Enum
-
+from datetime import datetime
 from schema.preprocess.distance_tool import get_distance_feature
 from schema.preprocess.facility import count_facility_inference, get_population_feature, log_val
 from schema.preprocess.fillna import fillna_cat
+from schema.preprocess.gmm_tool import get_gmm_feature
+from schema.preprocess.pca_tool import get_pca_feature
 from schema.preprocess.quadtree import get_nearest_feature
 from schema.preprocess.scale import scale_data
 from schema.realestate import RealEstateData
@@ -41,6 +43,8 @@ def healthcheck():
 def predict_realestate(body:RealEstateData):
 
     body = dict(body)
+
+    body['time'] = datetime.now()
 
     body['w'] = body['w'] if 'w' in body and body['w'] != -1 else body['frontWidth']
     body['h'] = body['h'] if 'h' in body and body['h'] != -1 else body['landSize'] / body['w']
@@ -81,7 +85,13 @@ def predict_realestate(body:RealEstateData):
     nearest_dict = get_nearest_feature(body['lat'], body['lon'])
     body = {**body, **nearest_dict}
     body = scale_data(body)
-
     body = fillna_cat(body)
 
-    return body
+    gmm_dict = get_gmm_feature(body)
+    body = {**body, **gmm_dict}
+
+    pca_dict = get_pca_feature(body)
+    body = {**body, **pca_dict}
+
+
+    # return body
