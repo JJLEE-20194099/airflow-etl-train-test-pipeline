@@ -1,9 +1,11 @@
 import pandas as pd
 import json
+import numpy as np
 from tqdm import tqdm
 from dataclasses import astuple
 import requests
 from dataclasses import dataclass
+import math
 
 @dataclass
 class LocationConfig:
@@ -136,3 +138,20 @@ def count_facility_inference(lat, lon):
         result = {**result, **obj}
 
     return result
+
+population_df = pd.read_csv('schema/preprocess/data/table/process_population.csv')
+
+def get_population_feature(district):
+    obj = population_df[population_df['district'] == district].iloc[0].to_dict()
+    del obj['district']
+
+    return obj
+
+def log_val(obj):
+
+    obj['population'] = math.log(obj['population'])
+    obj['density'] = math.log(obj['density'])
+    obj['acreage'] = math.log(obj['acreage'])
+
+    return obj
+

@@ -16,6 +16,7 @@ houseDirection_dict = {"NaN": 0, "southeast": 1, "southwest": 2, "northeast": 3,
 
 accessibility_dict = {"notInTheAlley": 0, "fitThreeCars": 1, "parkCar": 2, "fitOneCarAndOneMotorbike": 3, "fitTwoCars": 4, "theBottleNeckPoint": 5, "narrorRoad": 6}
 
+ad_dict = {'quận': 0, 'huyện': 1}
 
 encoder_dict = {
     "city": city_dict,
@@ -27,5 +28,6 @@ encoder_dict = {
     "typeOfRealEstate": typeOfRealEstate_dict,
     "facade": facade_dict,
     "houseDirection": houseDirection_dict,
-    "accessibility": accessibility_dict
+    "accessibility": accessibility_dict,
+    "prefixDistrict": ad_dict
 }
