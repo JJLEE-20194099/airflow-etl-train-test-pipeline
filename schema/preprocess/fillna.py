@@ -1,4 +1,5 @@
 import json
+import math
 
 cat_cols = ['nearest_3_street',
  'nearest_2_street',
@@ -37,6 +38,9 @@ cat_cols = ['nearest_3_street',
  'nearest_1_ward']
 
 def fillna(obj, cat_cols = cat_cols):
+
+    print(obj)
+
     for col in cat_cols:
         if obj[col] is None:
             obj[col] = 100

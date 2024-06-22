@@ -130,6 +130,7 @@ def count_facility_inference(lat, lon):
             num_of_facility = check_df.iloc[0].to_dict()
             del num_of_facility['lat'], num_of_facility['lon']
         else:
+            print("Cache Miss - facility Counter:", lat, lon)
             num_of_facility_dict = {}
             num_of_facility = count_facilities(lat, lon, distance=distance)
 
