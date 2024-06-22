@@ -8,6 +8,7 @@ import requests
 from tqdm import tqdm
 from pydantic import BaseModel
 import csv
+import pymongo
 import pandas as pd
 from dataclasses import dataclass
 import numpy as np
@@ -18,6 +19,7 @@ import regex as re
 from datetime import datetime
 from enum import Enum
 
+from src.helpers.build_offline_data_tool import build_offline_batch_data
 from schema.preprocess.distance_tool import get_distance_feature
 from schema.preprocess.facility import count_facility_inference, get_population_feature, log_val
 from schema.preprocess.fillna import fillna
@@ -40,6 +42,23 @@ def healthcheck():
     return {
         "data": "200"
     }
+
+@app.post("/build-offline-batch-data")
+def builld_offline_batch_data():
+
+    connection_str = os.getenv('REALESTATE_DB')
+    __client = pymongo.MongoClient(connection_str)
+
+    database = 'realestate'
+    __database = __client[database]
+
+    collection = __database["realestate_listing"]
+
+    offline_batch_data = list(collection.find({}))
+    exp_data = build_offline_batch_data(offline_batch_data)
+
+    return exp_data
+
 
 @app.post("/predict-realestate")
 def predict_realestate(body:RealEstateData):
@@ -94,7 +113,6 @@ def predict_realestate(body:RealEstateData):
 
     pca_dict = get_pca_feature(body)
     body = {**body, **pca_dict}
-
 
     infer_cols = get_inference_cols_by_name(city = body['city'], version = body['version'])
 

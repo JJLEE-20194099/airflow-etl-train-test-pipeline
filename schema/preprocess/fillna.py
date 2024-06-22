@@ -36,7 +36,7 @@ cat_cols = ['nearest_3_street',
  'nearest_7_ward',
  'nearest_1_ward']
 
-def fillna(obj):
+def fillna(obj, cat_cols = cat_cols):
     for col in cat_cols:
         if obj[col] is None:
             obj[col] = 100
@@ -54,6 +54,15 @@ def fillna(obj):
             continue
         obj[col] = mean_dict[col]
 
+    return obj
+
+def nan_2_none(obj):
+    if isinstance(obj, dict):
+        return {k:nan_2_none(v) for k,v in obj.items()}
+    elif isinstance(obj, list):
+        return [nan_2_none(v) for v in obj]
+    elif isinstance(obj, float) and math.isnan(obj):
+        return None
     return obj
 
 

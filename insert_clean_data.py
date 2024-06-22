@@ -7,21 +7,13 @@ from airflow.operators.python_operator import PythonOperator
 from airflow import DAG
 import os
 import math
+
+from schema.preprocess.fillna import nan_2_none
 load_dotenv(override=True)
 from consume.utils import  Redis
 
 from pymongo import InsertOne
 from tqdm import tqdm
-
-def nan_2_none(obj):
-    if isinstance(obj, dict):
-        return {k:nan_2_none(v) for k,v in obj.items()}
-    elif isinstance(obj, list):
-        return [nan_2_none(v) for v in obj]
-    elif isinstance(obj, float) and math.isnan(obj):
-        return None
-    return obj
-
 
 
 kafka_broker = os.getenv('KAFKA_BROKER')
