@@ -3,6 +3,7 @@ import pandas as pd
 from joblib import dump, load
 import json
 
+
 def get_pca_feature(obj):
     df = pd.DataFrame([obj])
 
@@ -16,10 +17,11 @@ def get_pca_feature(obj):
 
     pca_data = pca.transform(df[num_cols])[0]
 
-    obj['PC1'] = pca_data[0].item()
-    obj['PC2'] = pca_data[1].item()
+    result = dict()
+    result['PC1'] = pca_data[0].item()
+    result['PC2'] = pca_data[1].item()
 
-    return obj
+    return result
 
 
 

@@ -55,9 +55,9 @@ def builld_offline_batch_data():
     collection = __database["realestate_listing"]
 
     offline_batch_data = list(collection.find({}))
-    exp_data = build_offline_batch_data(offline_batch_data)
+    result = build_offline_batch_data(offline_batch_data)
 
-    return exp_data
+    return result
 
 
 @app.post("/predict-realestate")

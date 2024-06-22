@@ -15,6 +15,72 @@ from schema.preprocess.encode import encoder_dict
 from schema.preprocess.scale import mean_land_size_df_dict, rename_obj
 
 from tqdm import tqdm
+import json
+import os
+from datetime import datetime
+
+def create_new_candidate_for_feast_fv(candidate_df, version_tag):
+    path = f'/mnt/long/long/datn-feast/data/update_data/{version_tag}'
+    new_config_path = f'/mnt/long/long/datn-feast/data/featureset/update_data/{version_tag}'
+    os.makedirs(path, exist_ok=True)
+    os.makedirs(new_config_path, exist_ok=True)
+
+    fv_config_path_list = []
+    for city in ['hn', 'hcm']:
+        for version in tqdm(range(6)):
+
+            df = candidate_df.copy()
+
+            feature_dict = json.load(open(f'/mnt/long/long/datn-feast/data/featureset/{city}_v{version}.json'))
+            cat_cols = feature_dict['cat_cols']
+            num_cols = feature_dict['num_cols']
+            all_cols = list(set(cat_cols + num_cols))
+
+            selected_cols = [c for c in df.columns.tolist() if c not in ['target', 'time']]
+
+
+
+            timestamps = df['time'].tolist()
+            df['time'] = [pd.Timestamp(item) for item in timestamps]
+            df = df.rename(columns = {'time': 'event_timestamp'})
+
+            df = df.sort_values(by = ['event_timestamp'])
+            df = df.reset_index(drop = True)
+
+
+            full_feat_set = selected_cols
+
+            data_df = df[all_cols + ['event_timestamp']]
+            target_df = df[['target'] + ['event_timestamp']]
+
+            realestate_ids = pd.DataFrame(data=list(range(len(data_df))), columns=["realestate_id"])
+
+            data_df = pd.concat(objs=[data_df, realestate_ids], axis=1)
+            target_df = pd.concat(objs=[target_df, realestate_ids], axis=1)
+
+            featureset_df_path = f'{path}/data_df_{city}_v{version}.parquet'
+            data_df.to_parquet(path=featureset_df_path)
+
+            featureset_target_path = f'{path}/target_df_{city}_v{version}.parquet'
+            target_df.to_parquet(path=featureset_target_path)
+
+            config = {
+                "df_feature_view_name": f"{version_tag}_df_{city}_feature_view_v{version}",
+                "target_feature_view_name": f"{version_tag}_target_{city}_feature_view_v{version}",
+                "featureset_path": f"/mnt/long/long/datn-feast/data/featureset/{city}_v{version}.json",
+                "featureset_df_path": featureset_df_path,
+                "featureset_target_path": featureset_target_path,
+                "feast_dataset_name": f"{version_tag}_realestate_dataset_{city}_v{version}",
+                "feast_dataset_path": f"{path}/realestate_dataset_{city}_v{version}.parquet"
+            }
+
+            fv_config_path = f"{new_config_path}/{city}_v{version}.json"
+            with open(fv_config_path, "w") as outfile:
+                json.dump(config, outfile)
+
+            fv_config_path_list.append(fv_config_path)
+
+    return fv_config_path_list
 
 
 population_df = pd.read_csv('schema/preprocess/data/table/process_population.csv')
@@ -72,7 +138,7 @@ def build_offline_batch_data(standard_data):
     data['numberOfGarages'] = data['numberOfGarages'].replace(0, np.nan)
     data['certificateOfLandUseRight'] == (data['certificateOfLandUseRight'] == 'yes').astype(np.int32)
 
-    data = data[data['numberOfFloors'] <= 100]
+    data = data[data['numberOfFloors'] <= 100].reset_index(drop = True)
 
     del data['frontRoadWidth']
     del data['distanceToNearestRoad']
@@ -93,13 +159,11 @@ def build_offline_batch_data(standard_data):
     facility_list = []
     for lat, lon in tqdm(zip(lat_list, lon_list)):
         facility_count = count_facility_inference(lat, lon)
-        facility_count['lat'] = lat
-        facility_count['lon'] = lon
         facility_list.append(facility_count)
 
     facility_df = pd.DataFrame(facility_list)
 
-    data = data.merge(facility_df, how='left', on = ['lat', 'lon'])
+    data = pd.concat([data, facility_df], axis = 1)
 
     print("End: make facility features")
 
@@ -141,6 +205,8 @@ def build_offline_batch_data(standard_data):
 
     print("End: make distance features")
 
+    data['target'] = data['price'] * 1000 / data['landSize']
+
     data['population'] = np.log(data['population'])
     data['density'] = np.log(data['density'])
     data['acreage'] = np.log(data['acreage'])
@@ -177,19 +243,29 @@ def build_offline_batch_data(standard_data):
     del data['meanLandSize']
 
     obj_list = data.to_dict('records')
-    obj_list = [rename_obj(obj) for obj in obj_list]
-    obj_list = [nan_2_none(obj) for obj in obj_list]
-    obj_list = [fillna(obj) for obj in obj_list]
+    obj_list = [rename_obj(obj) for obj in tqdm(obj_list)]
+    obj_list = [nan_2_none(obj) for obj in tqdm(obj_list)]
+    obj_list = [fillna(obj) for obj in tqdm(obj_list)]
+
 
     data = pd.DataFrame(obj_list)
     gmm_df = pd.DataFrame([get_gmm_feature(obj) for obj in obj_list])
     data = pd.concat([data, gmm_df], axis = 1)
 
+
     obj_list = data.to_dict('records')
     pca_df = pd.DataFrame([get_pca_feature(obj) for obj in obj_list])
     data = pd.concat([data, pca_df], axis = 1)
 
-    return nan_2_none(data.to_dict('records')[0])
+    version_tag = f'{datetime.now()}_{data.shape[0]}records'
+    fv_config_path_list = create_new_candidate_for_feast_fv(data, version_tag)
+
+
+
+    return {
+        "fv_config_path_list": fv_config_path_list,
+        "sample_data": nan_2_none(data.to_dict('records')[0])
+    }
 
 
 
