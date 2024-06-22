@@ -122,7 +122,7 @@ def get_compact_realestate_info(item):
         return {
             "numberOfFloors": numberOfFloors,
             "numberOfBathRooms": numberOfBathRooms,
-            "numberOfBedRooms": numberOfBedRooms,
+            "numberOfLivingRooms": numberOfBedRooms,
             "numberOfKitchens": numberOfKitchens,
             "numberOfGarages": numberOfGarages,
             "certificateOfLandUseRight": certificateOfLandUseRight,

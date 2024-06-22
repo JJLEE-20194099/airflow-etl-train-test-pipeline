@@ -242,6 +242,13 @@ rename_dict = {'numberOfFloors': 'numberOfFloors',
  'acreage_ratio_with_meanLandSize': 'acreage_ratio_with_meanLandSize'}
 
 
+def rename_obj(obj):
+    for k in rename_dict.keys():
+        t = obj[k]
+        del obj[k]
+        obj[rename_dict[k]] = t
+    return obj
+
 def scale_data(obj):
     obj['is_street_house'] = 1 if obj['accessibility'] == 0 else 0
     obj['landSize_ratio'] = obj['landSize'] / obj['acreage']
@@ -254,13 +261,7 @@ def scale_data(obj):
 
     del obj['meanLandSize']
 
-    for k in rename_dict.keys():
-        t = obj[k]
-        del obj[k]
-        obj[rename_dict[k]] = t
-
-    return obj
-
+    return rename_obj(obj)
 
 
 

@@ -12,7 +12,7 @@ from schema.preprocess.text import preprocess_text
 from schema.preprocess.transform import get_compact_realestate_info
 
 from schema.preprocess.encode import encoder_dict
-from schema.preprocess.scale import mean_land_size_df_dict
+from schema.preprocess.scale import mean_land_size_df_dict, rename_obj
 
 from tqdm import tqdm
 
@@ -30,7 +30,7 @@ def build_offline_batch_data(standard_data):
     data = [item for item in data if item['landSize'] != None and item['price'] != None]
     data = pd.DataFrame(data)
 
-    data = data.drop_duplicates(subset = ['district', 'city', 'street', 'ward', 'numberOfFloors', 'numberOfBedRooms', 'numberOfBathRooms', 'landType', 'price', 'description'], keep = 'first')
+    data = data.drop_duplicates(subset = ['district', 'city', 'street', 'ward', 'numberOfFloors', 'numberOfLivingRooms', 'numberOfBathRooms', 'landType', 'price', 'description'], keep = 'first')
     data = data.reset_index(drop = True)
     print("Convert Obj Data to DataFrame")
 
@@ -67,7 +67,7 @@ def build_offline_batch_data(standard_data):
     data['numberOfFloors'] = data['numberOfFloors'].replace(0, np.nan)
 
     data['numberOfBathRooms'] = data['numberOfBathRooms'].replace(0, np.nan)
-    data['numberOfBedRooms'] = data['numberOfBedRooms'].replace(0, np.nan)
+    data['numberOfLivingRooms'] = data['numberOfLivingRooms'].replace(0, np.nan)
     data['numberOfKitchens'] = data['numberOfKitchens'].replace(0, np.nan)
     data['numberOfGarages'] = data['numberOfGarages'].replace(0, np.nan)
     data['certificateOfLandUseRight'] == (data['certificateOfLandUseRight'] == 'yes').astype(np.int32)
@@ -176,18 +176,20 @@ def build_offline_batch_data(standard_data):
 
     del data['meanLandSize']
 
-
-    obj_list = data.to_dict()
+    obj_list = data.to_dict('records')
+    obj_list = [rename_obj(obj) for obj in obj_list]
+    obj_list = [nan_2_none(obj) for obj in obj_list]
     obj_list = [fillna(obj) for obj in obj_list]
+
     data = pd.DataFrame(obj_list)
     gmm_df = pd.DataFrame([get_gmm_feature(obj) for obj in obj_list])
     data = pd.concat([data, gmm_df], axis = 1)
 
-    obj_list = data.to_dict()
+    obj_list = data.to_dict('records')
     pca_df = pd.DataFrame([get_pca_feature(obj) for obj in obj_list])
     data = pd.concat([data, pca_df], axis = 1)
 
-    return nan_2_none(data.to_dict()[0])
+    return nan_2_none(data.to_dict('records')[0])
 
 
 

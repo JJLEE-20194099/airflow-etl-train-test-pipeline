@@ -12,7 +12,8 @@ def get_pca_feature(obj):
     else:
         num_cols = json.load(open('/mnt/long/long/datn-feast/data/featureset/hn_v2.json', 'r'))['num_cols']
 
-    pca = load(f'schema/preprocess/data/pca/{prefix}_pca.joblib')
+    pca = load(f'/mnt/long/long/datn-feast/eda/{prefix}_pca.joblib')
+
     pca_data = pca.transform(df[num_cols])[0]
 
     obj['PC1'] = pca_data[0].item()
