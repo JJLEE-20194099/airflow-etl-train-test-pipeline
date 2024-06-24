@@ -7,6 +7,7 @@ feature_version_config = {
     "v2": 2,
     "v3": 3,
     "v4": 4,
+    "v5": 5,
 }
 
 def get_inference_cols_by_name(city = 0, version:ModelVersionEnum = 'v3'):

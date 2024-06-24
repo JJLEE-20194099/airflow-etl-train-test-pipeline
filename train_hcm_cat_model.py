@@ -16,6 +16,7 @@ import warnings
 from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow import DAG
 from airflow.decorators import task, dag
+from src.helpers.reliable_tool import get_trustworthy_dataset
 from src.models.single_model import cat
 from src.models.single_model import xgb
 from src.models.single_model import lgbm
@@ -39,45 +40,40 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-HCM_CONFIG = json.load(open('/home/long/long/datn-feast/feature_repo/src/config/featureset/full_version.json'))
-feature_dict = json.load(open(HCM_CONFIG['featureset_path'], 'r'))
+city = 'hcm'
+version = 3
+model_name = 'cat'
+load_pretrained = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
+
+FS = json.load(open('/home/long/long/datn-feast/feature_repo/src/config/featureset/update_data/2024-06-22 20:00:16.804439_509records/{city}_v{version}.json'))
+feature_dict = json.load(open(FS['featureset_path'], 'r'))
 cat_cols = feature_dict['cat_cols']
 num_cols = feature_dict['num_cols']
 
 all_cols = cat_cols + num_cols
-feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
+feast_dataset_name = FS["feast_dataset_name"]
 
 EXP = os.getenv('EXP')
 
-@dag("train_hcm_cat_model", tags = ["train_hcm_cat_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
+@dag(f"train_{city}_{model_name}_model", tags = [f"train_{city}_{model_name}_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    @task(task_id="train_hcm_cat_model", retries=0)
+    @task(task_id=f"train_{city}_{model_name}_model", retries=0)
     def train():
 
         fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
         train_data_source_name = feast_dataset_name
         full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
 
-        train_df = full_df.iloc[:-10954]
-        test_df = full_df.iloc[-10954:]
+        train_df = full_df
+        test_df = get_trustworthy_dataset(city, version)
 
         target_feature = 'target'
         target_feature_alias = 'Price (million/m2) / 100'
 
         categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
 
-        cat_model = cat.create_model(cat_idxs = categorical_features_indices)
-        lgbm_model = lgbm.create_model(cat_names = cat_cols)
-        xgb_model = xgb.create_model()
-        abr_model = abr.create_model()
-        etr_model = etr.create_model()
-        gbr_model = gbr.create_model()
-        knr_model = knr.create_model()
-        la_model = la.create_model()
-        mlp_model = mlp.create_model()
-        rf_model = rf.create_model()
-        linear_model = linear.create_model()
+        cat_model = cat.create_model(cat_idxs = categorical_features_indices, load_pretrained = True)
 
 
         train_cat_model_run_id = mlflow_train_model(

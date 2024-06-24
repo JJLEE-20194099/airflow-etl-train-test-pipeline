@@ -55,6 +55,8 @@ class ModelVersionEnum(str, Enum):
     v1 = 'v1'
     v0 = 'v0'
     v4 = 'v4'
+    v5 = 'v5'
+
 
 
 data = json.load(open('schema/expectations/address.json', 'r'))

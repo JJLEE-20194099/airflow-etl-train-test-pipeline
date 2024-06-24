@@ -116,4 +116,5 @@ def predict_realestate(body:RealEstateData):
 
     infer_cols = get_inference_cols_by_name(city = body['city'], version = body['version'])
 
+
     return infer_cols
