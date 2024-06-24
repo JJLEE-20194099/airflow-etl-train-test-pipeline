@@ -21,7 +21,7 @@ from datetime import datetime
 
 def create_new_candidate_for_feast_fv(candidate_df, version_tag):
     path = f'/mnt/long/long/datn-feast/data/update_data/{version_tag}'
-    new_config_path = f'/mnt/long/long/datn-feast/data/featureset/update_data/{version_tag}'
+    new_config_path = f'/mnt/long/long/datn-feast/feature_repo/src/config/featureset/update_data/{version_tag}'
     os.makedirs(path, exist_ok=True)
     os.makedirs(new_config_path, exist_ok=True)
 
