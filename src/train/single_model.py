@@ -39,17 +39,19 @@ def mlflow_train_model(
     mlflow.sklearn.autolog()
 
     fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
-    # full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
     experiment_id = create_experiment(experiment_name)
 
+    print("Start to calculating correlation map")
     corr_path = f"/tmp/{model_name}_corr_plot.png"
     plot_correlation_matrix_and_save(train_df[selected_features + [target_feature]], path = corr_path)
 
-
     timestamp = datetime.now().isoformat().split(".")[0].replace(":", ".")
+
+    print("Start to training")
     with mlflow.start_run(experiment_id=experiment_id, run_name=timestamp) as run:
 
         X_train, X_test, y_train, y_test = train_test_split_by_col(train_df = train_df, test_df = test_df, X_cols = selected_features, y_col = target_feature)
+        print(X_train)
         model.fit(X_train, y_train)
         cv_results = model.cv_results_
         best_index = model.best_index_

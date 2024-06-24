@@ -10,7 +10,6 @@ sample_dict = {
     "hn": 100000
 }
 
-
 def get_trustworthy_dataset(city, version):
 
     FS = json.load(open(f'/home/long/long/datn-feast/feature_repo/src/config/featureset/{city}_v{version}.json'))

@@ -41,11 +41,12 @@ import warnings
 warnings.filterwarnings('ignore')
 
 city = 'hcm'
-version = 3
+version = 0
 model_name = 'cat'
-load_pretrained = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
+pretrained_file = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
 
-FS = json.load(open('/home/long/long/datn-feast/feature_repo/src/config/featureset/update_data/2024-06-22 20:00:16.804439_509records/{city}_v{version}.json'))
+
+FS = json.load(open(f'/home/long/long/datn-feast/feature_repo/src/config/featureset/update_data/demo1/{city}_v{version}.json'))
 feature_dict = json.load(open(FS['featureset_path'], 'r'))
 cat_cols = feature_dict['cat_cols']
 num_cols = feature_dict['num_cols']
@@ -55,38 +56,41 @@ feast_dataset_name = FS["feast_dataset_name"]
 
 EXP = os.getenv('EXP')
 
-@dag(f"train_{city}_{model_name}_model", tags = [f"train_{city}_{model_name}_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
-def taskflow():
+# @dag(f"train_{city}_{model_name}_model", tags = [f"train_{city}_{model_name}_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
+# def taskflow():
 
-    @task(task_id=f"train_{city}_{model_name}_model", retries=0)
-    def train():
+#     @task(task_id=f"train_{city}_{model_name}_model", retries=0)
+def train():
 
-        fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
-        train_data_source_name = feast_dataset_name
-        full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+    fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
+    train_data_source_name = feast_dataset_name
+    train_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+    test_df = get_trustworthy_dataset(city, version)
 
-        train_df = full_df
-        test_df = get_trustworthy_dataset(city, version)
-
-        target_feature = 'target'
-        target_feature_alias = 'Price (million/m2) / 100'
-
-        categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
-
-        cat_model = cat.create_model(cat_idxs = categorical_features_indices, load_pretrained = True)
+    print('TRAIN_SHAPE:', train_df.shape)
+    print('TEST_SHAPE:', test_df.shape)
 
 
-        train_cat_model_run_id = mlflow_train_model(
-            model = cat_model,
-            train_df = train_df,
-            test_df = test_df,
-            train_data_source_name = train_data_source_name,
-            experiment_name = f'hcm_cat_realestate_{EXP}',
-            selected_features = all_cols,
-            target_feature = target_feature,
-            target_feature_alias = target_feature_alias,
-            model_name = 'catboost'
-        )
+    target_feature = 'target'
+    target_feature_alias = 'Price (million/m2)'
 
-    train()
-dag = taskflow()
+    categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
+
+    cat_model = cat.create_model(cat_idxs = categorical_features_indices, pretrained_file = pretrained_file)
+
+    print("LOAD PRETRAINED MODEL SUCCESSFULLY")
+
+    train_cat_model_run_id = mlflow_train_model(
+        model = cat_model,
+        train_df = train_df,
+        test_df = test_df,
+        train_data_source_name = train_data_source_name,
+        experiment_name = f'hcm_cat_realestate_{EXP}',
+        selected_features = all_cols,
+        target_feature = target_feature,
+        target_feature_alias = target_feature_alias,
+        model_name = 'catboost'
+    )
+
+train()
+# dag = taskflow()

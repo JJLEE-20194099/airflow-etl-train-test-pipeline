@@ -38,6 +38,7 @@ def create_new_candidate_for_feast_fv(candidate_df, version_tag):
 
             selected_cols = [c for c in df.columns.tolist() if c not in ['target', 'time']]
 
+            df[cat_cols] = df[cat_cols].astype(np.int32)
 
 
             timestamps = df['time'].tolist()
@@ -257,7 +258,7 @@ def build_offline_batch_data(standard_data):
     pca_df = pd.DataFrame([get_pca_feature(obj) for obj in obj_list])
     data = pd.concat([data, pca_df], axis = 1)
 
-    version_tag = f'{datetime.now()}_{data.shape[0]}records'
+    version_tag = f'demo1'
     fv_config_path_list = create_new_candidate_for_feast_fv(data, version_tag)
 
 
