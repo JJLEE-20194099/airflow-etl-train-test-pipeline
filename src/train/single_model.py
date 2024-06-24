@@ -51,8 +51,9 @@ def mlflow_train_model(
     with mlflow.start_run(experiment_id=experiment_id, run_name=timestamp) as run:
 
         X_train, X_test, y_train, y_test = train_test_split_by_col(train_df = train_df, test_df = test_df, X_cols = selected_features, y_col = target_feature)
-        print(X_train)
+
         model.fit(X_train, y_train)
+        model.predict(X_train)
         cv_results = model.cv_results_
         best_index = model.best_index_
         for score_name in [score for score in cv_results if "mean_test" in score]:
