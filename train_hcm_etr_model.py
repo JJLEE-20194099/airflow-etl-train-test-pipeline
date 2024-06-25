@@ -8,6 +8,7 @@ import boto3
 from io import StringIO
 from sqlalchemy import create_engine
 from feast import FeatureStore
+from src.helpers.reliable_tool import get_trustworthy_dataset
 
 import mlflow
 import tempfile
@@ -39,13 +40,20 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-HCM_CONFIG = json.load(open('/home/long/long/datn-feast/feature_repo/src/config/featureset/full_version.json'))
-feature_dict = json.load(open(HCM_CONFIG['featureset_path'], 'r'))
+city = 'hcm'
+version = 0
+model_name = 'etr'
+pretrained_file = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
+
+
+FS = json.load(open(f'/home/long/long/datn-feast/feature_repo/src/config/featureset/update_data/demo1/{city}_v{version}.json'))
+feature_dict = json.load(open(FS['featureset_path'], 'r'))
 cat_cols = feature_dict['cat_cols']
 num_cols = feature_dict['num_cols']
 
 all_cols = cat_cols + num_cols
-feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
+feast_dataset_name = FS["feast_dataset_name"]
+
 EXP = os.getenv('EXP')
 
 @dag("train_hcm_etr_model", tags = ["train_hcm_etr_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
@@ -56,27 +64,21 @@ def taskflow():
 
         fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
         train_data_source_name = feast_dataset_name
-        full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+        train_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+        test_df = get_trustworthy_dataset(city, version)
 
-        train_df = full_df.iloc[:-10954]
-        test_df = full_df.iloc[-10954:]
+        print('TRAIN_SHAPE:', train_df.shape)
+        print('TEST_SHAPE:', test_df.shape)
+
 
         target_feature = 'target'
-        target_feature_alias = 'Price (million/m2) / 100'
+        target_feature_alias = 'Price (million/m2)'
 
         categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
 
-        cat_model = cat.create_model(cat_idxs = categorical_features_indices)
-        lgbm_model = lgbm.create_model(cat_names = cat_cols)
-        xgb_model = xgb.create_model()
-        abr_model = abr.create_model()
-        etr_model = etr.create_model()
-        gbr_model = gbr.create_model()
-        knr_model = knr.create_model()
-        la_model = la.create_model()
-        mlp_model = mlp.create_model()
-        rf_model = rf.create_model()
-        linear_model = linear.create_model()
+
+        etr_model = etr.create_model(pretrained_file = pretrained_file)
+
 
 
         train_etr_model_run_id = mlflow_train_model(

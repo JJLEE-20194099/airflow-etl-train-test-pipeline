@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import boto3
 from io import StringIO
 from sqlalchemy import create_engine
+from src.helpers.reliable_tool import get_trustworthy_dataset
 from feast import FeatureStore
 
 import mlflow
@@ -16,17 +17,7 @@ import warnings
 from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow import DAG
 from airflow.decorators import task, dag
-from src.models.single_model import cat
-from src.models.single_model import xgb
-from src.models.single_model import lgbm
-from src.models.single_model import abr
-from src.models.single_model import etr
-from src.models.single_model import gbr
-from src.models.single_model import la
-from src.models.single_model import la
-from src.models.single_model import mlp
 from src.models.single_model import rf
-from src.models.single_model import linear
 
 
 
@@ -39,13 +30,19 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-HCM_CONFIG = json.load(open('/home/long/long/datn-feast/feature_repo/src/config/featureset/full_version.json'))
-feature_dict = json.load(open(HCM_CONFIG['featureset_path'], 'r'))
+city = 'hcm'
+version = 0
+model_name = 'rf'
+pretrained_file = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
+
+
+FS = json.load(open(f'/home/long/long/datn-feast/feature_repo/src/config/featureset/update_data/demo1/{city}_v{version}.json'))
+feature_dict = json.load(open(FS['featureset_path'], 'r'))
 cat_cols = feature_dict['cat_cols']
 num_cols = feature_dict['num_cols']
 
 all_cols = cat_cols + num_cols
-feast_dataset_name = HCM_CONFIG["feast_dataset_name"]
+feast_dataset_name = FS["feast_dataset_name"]
 
 EXP = os.getenv('EXP')
 
@@ -57,17 +54,19 @@ def taskflow():
 
         fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
         train_data_source_name = feast_dataset_name
-        full_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+        train_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+        test_df = get_trustworthy_dataset(city, version)
 
-        train_df = full_df.iloc[:-10954]
-        test_df = full_df.iloc[-10954:]
+        print('TRAIN_SHAPE:', train_df.shape)
+        print('TEST_SHAPE:', test_df.shape)
+
 
         target_feature = 'target'
-        target_feature_alias = 'Price (million/m2) / 100'
+        target_feature_alias = 'Price (million/m2)'
 
         categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
 
-        rf_model = rf.create_model()
+        rf_model = rf.create_model(pretrained_file = pretrained_file)
 
         train_rf_model_run_id = mlflow_train_model(
             model = rf_model,

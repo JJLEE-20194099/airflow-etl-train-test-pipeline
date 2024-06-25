@@ -56,41 +56,41 @@ feast_dataset_name = FS["feast_dataset_name"]
 
 EXP = os.getenv('EXP')
 
-# @dag(f"train_{city}_{model_name}_model", tags = [f"train_{city}_{model_name}_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
-# def taskflow():
+@dag(f"train_{city}_{model_name}_model", tags = [f"train_{city}_{model_name}_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
+def taskflow():
 
-#     @task(task_id=f"train_{city}_{model_name}_model", retries=0)
-def train():
+    @task(task_id=f"train_{city}_{model_name}_model", retries=0)
+    def train():
 
-    fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
-    train_data_source_name = feast_dataset_name
-    train_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
-    test_df = get_trustworthy_dataset(city, version)
+        fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
+        train_data_source_name = feast_dataset_name
+        train_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
+        test_df = get_trustworthy_dataset(city, version)
 
-    print('TRAIN_SHAPE:', train_df.shape)
-    print('TEST_SHAPE:', test_df.shape)
+        print('TRAIN_SHAPE:', train_df.shape)
+        print('TEST_SHAPE:', test_df.shape)
 
 
-    target_feature = 'target'
-    target_feature_alias = 'Price (million/m2)'
+        target_feature = 'target'
+        target_feature_alias = 'Price (million/m2)'
 
-    categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
+        categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
 
-    cat_model = cat.create_model(cat_idxs = categorical_features_indices, pretrained_file = pretrained_file)
+        cat_model = cat.create_model(cat_idxs = categorical_features_indices, pretrained_file = pretrained_file)
 
-    print("LOAD PRETRAINED MODEL SUCCESSFULLY")
+        print("LOAD PRETRAINED MODEL SUCCESSFULLY")
 
-    train_cat_model_run_id = mlflow_train_model(
-        model = cat_model,
-        train_df = train_df,
-        test_df = test_df,
-        train_data_source_name = train_data_source_name,
-        experiment_name = f'hcm_cat_realestate_{EXP}',
-        selected_features = all_cols,
-        target_feature = target_feature,
-        target_feature_alias = target_feature_alias,
-        model_name = 'catboost'
-    )
+        train_cat_model_run_id = mlflow_train_model(
+            model = cat_model,
+            train_df = train_df,
+            test_df = test_df,
+            train_data_source_name = train_data_source_name,
+            experiment_name = f'hcm_cat_realestate_{EXP}',
+            selected_features = all_cols,
+            target_feature = target_feature,
+            target_feature_alias = target_feature_alias,
+            model_name = 'catboost'
+        )
 
-train()
-# dag = taskflow()
+    train()
+dag = taskflow()
