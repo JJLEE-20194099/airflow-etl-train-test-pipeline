@@ -28,6 +28,7 @@ class Redis:
         Returns:
             _type_: False if id not exist and no add to set, True if id exist
         """
+        # print(id)
         return self.redis.sismember(set_name, id)
 
     def add_id_to_set(self, id, set_name):
@@ -43,10 +44,11 @@ class Redis:
         return self.redis.sadd(set_name, id)
 
 class Kafka:
-    def __init__(self):
+    def __init__(self, broker_id):
+        self.broker_id = broker_id
         self.kafka_host = os.getenv('KAFKA_HOST')
-        self.kafka_port = os.getenv('KAFKA_PORT')
-        self.producer = KafkaProducer(bootstrap_servers=[f'{self.kafka_host}:{self.kafka_port}'])
+        self.kafka_port = os.getenv(f'KAFKA_PORT_{broker_id}')
+        self.producer = KafkaProducer(bootstrap_servers=['localhost:9092', 'localhost:9093', 'localhost:9094'])
         #self.consumer = KafkaConsumer(bootstrap_servers=[f'{self.kafka_host}:{self.kafka_port}'], auto_offset_reset='earliest', enable_auto_commit=True, group_id=self.kafka_group_id,value_deserializer=lambda x: json.loads(x.decode('utf-8')))
 
 
@@ -78,6 +80,6 @@ class Kafka:
         Returns:
             _type_ : consumer
         """
-        consumer = KafkaConsumer(bootstrap_servers=[f'{self.kafka_host}:{self.kafka_port}'], auto_offset_reset='earliest', enable_auto_commit=True, group_id=kafka_group_id,value_deserializer=lambda x: x.decode('utf-8'))
+        consumer = KafkaConsumer(bootstrap_servers=['localhost:9092', 'localhost:9093', 'localhost:9094'], auto_offset_reset='earliest', enable_auto_commit=True, group_id=kafka_group_id,value_deserializer=lambda x: x.decode('utf-8'))
         consumer.subscribe(kafka_topic)
         return consumer
