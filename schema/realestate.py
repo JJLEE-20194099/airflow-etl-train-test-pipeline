@@ -61,14 +61,15 @@ class MLEnum(str, Enum):
     cat = 'cat'
     lgbm = 'lgbm'
     xgb = 'xgb'
-    lgbm = 'lgbm'
     abr = 'abr'
     etr = 'etr'
     gbr = 'gbr'
     knr = 'knr'
-
-
-
+    la = 'la'
+    linear = 'linear'
+    mlp = 'mlp'
+    rf = 'rf'
+    ridge = 'ridge'
 
 
 data = json.load(open('schema/expectations/address.json', 'r'))

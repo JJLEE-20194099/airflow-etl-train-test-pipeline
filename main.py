@@ -43,6 +43,11 @@ def healthcheck():
         "data": "200"
     }
 
+@app.post("/start-clean-consumer")
+def start_clean_consumer():
+    os.system('python clean_raw_data.py')
+
+
 @app.post("/build-offline-batch-data")
 def builld_offline_batch_data():
 

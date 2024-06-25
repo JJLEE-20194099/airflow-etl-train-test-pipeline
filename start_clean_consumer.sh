@@ -1,0 +1,1 @@
+tmux new-session -d -s clean_consumer 'python clean_raw_data.py'
