@@ -57,6 +57,18 @@ class ModelVersionEnum(str, Enum):
     v4 = 'v4'
     v5 = 'v5'
 
+class MLEnum(str, Enum):
+    cat = 'cat'
+    lgbm = 'lgbm'
+    xgb = 'xgb'
+    lgbm = 'lgbm'
+    abr = 'abr'
+    etr = 'etr'
+    gbr = 'gbr'
+    knr = 'knr'
+
+
+
 
 
 data = json.load(open('schema/expectations/address.json', 'r'))
