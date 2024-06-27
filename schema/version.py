@@ -3,13 +3,13 @@ from pydantic import BaseModel, model_validator
 from typing import Union, List, Optional
 import json
 
-class ModelVersionEnum(str, Enum):
-    v3 = 'v3'
-    v2 = 'v2'
-    v1 = 'v1'
-    v0 = 'v0'
-    v4 = 'v4'
-    v5 = 'v5'
+class ModelVersionEnum(int, Enum):
+    v3 = 3
+    v2 = 2
+    v1 = 1
+    v0 = 0
+    v4 = 4
+    v5 = 5
 
 class MLEnum(str, Enum):
     cat = 'cat'
@@ -34,3 +34,6 @@ class ModelNameCityVersion(BaseModel):
     modelname: MLEnum
     feature_set_version: ModelVersionEnum
     city: CityEnum
+
+    class Config:
+        use_enum_values = True

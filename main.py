@@ -1,6 +1,7 @@
 import os
 import json
 from fastapi import FastAPI
+from fastapi import APIRouter, Depends, BackgroundTasks
 from fastapi import HTTPException, File, UploadFile
 from dataclasses import astuple
 from fastapi.responses import FileResponse
@@ -86,11 +87,39 @@ def build_offline_batch():
 
     return result
 
-@app.post("/train-ai-model")
-def train_ai_model(body: ModelNameCityVersion):
-    body = dict(body)
-    train_model_by_city_data_and_feature_version(city = body['city'], version = body['feature_set_version'], model_name = body['model_name'])
+priority_map = {
+    'cat': 9,
+    'lgbm': 9,
+    'xgb': 9,
+    'abr': 9,
+    'etr': 9,
+    'gbr': 9,
+    'knr': 9,
+    'la': 9,
+    'linear': 9,
+    'mlp': 9,
+    'rf': 9,
+    'ridge': 9
+}
 
+@app.post("/train-ai-model")
+def train_ai_model(body: ModelNameCityVersion, background_tasks: BackgroundTasks):
+    body = dict(body)
+
+    city = body['city']
+    feature_set_version = body['feature_set_version']
+    modelname = body['modelname']
+
+    if modelname in ['cat', 'lgbm', 'xgb']:
+        train_model_by_city_data_and_feature_version.apply_async(
+            (city, feature_set_version, modelname),
+            queue=f'{city}_{modelname}',
+            priority=priority_map[modelname]
+        )
+    else:
+        background_tasks.add_task(train_model_by_city_data_and_feature_version, city, feature_set_version, modelname)
+
+    return 1
 
 @app.post("/predict-realestate")
 def predict_realestate(body:RealEstateData):

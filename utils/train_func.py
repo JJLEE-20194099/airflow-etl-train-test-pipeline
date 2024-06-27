@@ -9,6 +9,43 @@ import json
 from feast import FeatureStore
 from src.helpers.reliable_tool import get_trustworthy_dataset
 
+from dotenv import load_dotenv
+load_dotenv(override=True)
+import asyncio
+import cronitor.celery
+from kombu import Exchange, Queue
+from datetime import datetime, timedelta
+from celery import Celery
+
+cronitor.api_key = os.getenv("CRONITOR_KEY")
+cronitor.environment = os.getenv("ENV_NAME")
+
+app = Celery()
+celeryconfig = {}
+celeryconfig['BROKER_URL'] = os.getenv("REDIS_BROKER")
+celeryconfig['CELERY_RESULT_BACKEND'] = os.getenv("REDIS_BROKER")
+
+queue_list = []
+
+for model_name in ['cat',
+    'lgbm',
+    'xgb'
+]:
+    for city in ['hn', 'hcm']:
+        queue_name = f'{city}_{model_name}'
+        queue_list.append(
+            Queue(queue_name, Exchange(queue_name), routing_key=queue_name,
+                queue_arguments={'x-max-priority': 10})
+        )
+celeryconfig['CELERY_QUEUES'] = queue_list
+
+celeryconfig['CELERY_ACKS_LATE'] = True
+celeryconfig['CELERYD_PREFETCH_MULTIPLIER'] = 1
+app.config_from_object(celeryconfig)
+
+cronitor.celery.initialize(app)
+
+@app.task
 def train_model_by_city_data_and_feature_version(city = 'hcm', version = 0, model_name = 'abr'):
 
     pretrained_file = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
