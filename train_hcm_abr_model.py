@@ -3,7 +3,7 @@ import warnings
 from airflow import DAG
 from airflow.decorators import task, dag
 from utils.train_func import train_model_by_city_data_and_feature_version
-
+from datetime import datetime, timedelta
 
 
 from dotenv import load_dotenv

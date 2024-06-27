@@ -9,6 +9,8 @@ from src.models.single_model import la
 from src.models.single_model import mlp
 from src.models.single_model import rf
 from src.models.single_model import linear
+from src.models.single_model import rid
+
 
 
 def init(model_name, pretrained_file, categorical_features_indices):
@@ -28,6 +30,8 @@ def init(model_name, pretrained_file, categorical_features_indices):
         return lgbm.create_model(pretrained_file = pretrained_file)
     if model_name == 'linear':
         return linear.create_model(pretrained_file = pretrained_file)
+    if model_name == 'ridge':
+        return rid.create_model(pretrained_file = pretrained_file)
     if model_name == 'mlp':
         return mlp.create_model(pretrained_file = pretrained_file)
     if model_name == 'rf':
