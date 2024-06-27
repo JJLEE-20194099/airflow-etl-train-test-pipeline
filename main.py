@@ -28,10 +28,12 @@ from schema.preprocess.pca_tool import get_pca_feature
 from schema.preprocess.scale import scale_data
 from schema.preprocess.quadtree import get_nearest_feature
 from schema.realestate import RealEstateData
+from schema.version import ModelNameCityVersion
 from schema.preprocess.encode import encoder_dict
 import time
 
 from utils.infer_tool import get_inference_cols_by_name
+from utils.train_func import train_model_by_city_data_and_feature_version
 
 
 app = FastAPI()
@@ -47,9 +49,21 @@ def healthcheck():
 def start_clean_consumer():
     os.system('python clean_raw_data.py')
 
+@app.post("/build-training-dataset")
+def build_training_dataset():
+    feast_server = os.getenv('FEAST_SERVER')
+
+    url = f"{feast_server}/build-training-dataset"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    response = response.json()
+
 
 @app.post("/build-offline-batch-data")
-def builld_offline_batch_data():
+def build_offline_batch_data():
 
     connection_str = os.getenv('REALESTATE_DB')
     __client = pymongo.MongoClient(connection_str)
@@ -63,6 +77,11 @@ def builld_offline_batch_data():
     result = build_offline_batch_data(offline_batch_data)
 
     return result
+
+@app.post("/train-ai-model")
+def train_ai_model(body: ModelNameCityVersion):
+    body = dict(body)
+    train_model_by_city_data_and_feature_version(city = body['city'], version = body['feature_set_version'], model_name = body['model_name'])
 
 
 @app.post("/predict-realestate")
