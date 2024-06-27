@@ -31,6 +31,6 @@ class CityEnum(str, Enum):
 
 
 class ModelNameCityVersion(BaseModel):
-    model_name: MLEnum
+    modelname: MLEnum
     feature_set_version: ModelVersionEnum
     city: CityEnum

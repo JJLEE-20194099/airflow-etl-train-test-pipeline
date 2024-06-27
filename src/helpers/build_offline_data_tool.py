@@ -19,6 +19,8 @@ import json
 import os
 from datetime import datetime
 
+city_dict = {"hcm": 0, "hn": 1}
+
 def create_new_candidate_for_feast_fv(candidate_df, version_tag):
     path = f'/mnt/long/long/datn-feast/data/update_data/{version_tag}'
     new_config_path = f'/mnt/long/long/datn-feast/feature_repo/src/config/featureset/update_data/{version_tag}'
@@ -29,7 +31,7 @@ def create_new_candidate_for_feast_fv(candidate_df, version_tag):
     for city in ['hn', 'hcm']:
         for version in tqdm(range(6)):
 
-            df = candidate_df[candidate_df['city'] == city].reset_index(drop = True)
+            df = candidate_df[candidate_df['city'] == city_dict[city]].reset_index(drop = True)
 
             feature_dict = json.load(open(f'/mnt/long/long/datn-feast/data/featureset/{city}_v{version}.json'))
             cat_cols = feature_dict['cat_cols']
