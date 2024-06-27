@@ -63,7 +63,7 @@ def build_training_dataset():
 
 
 @app.post("/build-offline-batch-data")
-def build_offline_batch_data():
+def build_offline_batch():
 
     connection_str = os.getenv('REALESTATE_DB')
     __client = pymongo.MongoClient(connection_str)
@@ -73,8 +73,16 @@ def build_offline_batch_data():
 
     collection = __database["realestate_listing"]
 
-    offline_batch_data = list(collection.find({}))
-    result = build_offline_batch_data(offline_batch_data)
+    # hn_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hà Nội"}))
+    # hcm_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hồ Chí Minh"}))
+    full_offline_batch_data = list(collection.find({}))
+
+    # result = build_offline_batch_data({
+    #     "hn": hn_offline_batch_data,
+    #     "hcm": hcm_offline_batch_data,
+    # })
+
+    result = build_offline_batch_data(full_offline_batch_data)
 
     return result
 

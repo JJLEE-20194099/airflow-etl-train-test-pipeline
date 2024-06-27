@@ -29,7 +29,7 @@ def create_new_candidate_for_feast_fv(candidate_df, version_tag):
     for city in ['hn', 'hcm']:
         for version in tqdm(range(6)):
 
-            df = candidate_df.copy()
+            df = candidate_df[candidate_df['city'] == city].reset_index(drop = True)
 
             feature_dict = json.load(open(f'/mnt/long/long/datn-feast/data/featureset/{city}_v{version}.json'))
             cat_cols = feature_dict['cat_cols']
@@ -87,6 +87,7 @@ def create_new_candidate_for_feast_fv(candidate_df, version_tag):
 population_df = pd.read_csv('schema/preprocess/data/table/process_population.csv')
 
 def build_offline_batch_data(standard_data):
+
     print("Build Offline Batch Size:", len(standard_data))
 
     data = [get_compact_realestate_info(item) for item in standard_data]
@@ -152,7 +153,12 @@ def build_offline_batch_data(standard_data):
 
     data = data.replace(np.inf, np.nan)
 
-    data = data.drop_duplicates().sample(frac = 1.0).head(1000)
+    data = data.drop_duplicates().sample(frac = 1.0)
+
+    hn_data = data[data['city'] == 'hà nội'].head(1000)
+    hcm_data = data[data['city'] == 'hồ chí minh'].head(1000)
+
+    data = pd.concat([hn_data, hcm_data])
     data = data.reset_index(drop = True)
 
     print("Start: make facility features")
@@ -198,6 +204,9 @@ def build_offline_batch_data(standard_data):
 
 
     distance_list = []
+
+    lat_list = data['lat'].tolist()
+    lon_list = data['lon'].tolist()
 
     for i, lat in tqdm(enumerate(lat_list)):
 
