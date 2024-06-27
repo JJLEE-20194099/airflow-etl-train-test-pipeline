@@ -91,6 +91,8 @@ def processMeeyland(msg):
         status = KafkaInstance.send_data(dataMeeyland, "datn_meeyland")
         if status:
             print("Process New Message and Send Message Done")
+            return dataMeeyland
+    return None
 
 
 def clean_meeyland():

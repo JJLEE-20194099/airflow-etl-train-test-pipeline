@@ -152,6 +152,9 @@ def build_offline_batch_data(standard_data):
 
     data = data.replace(np.inf, np.nan)
 
+    data = data.drop_duplicates().sample(frac = 1.0).head(1000)
+    data = data.reset_index(drop = True)
+
     print("Start: make facility features")
 
     lat_list = data['lat'].tolist()
@@ -260,7 +263,6 @@ def build_offline_batch_data(standard_data):
 
     version_tag = f'demo1'
     fv_config_path_list = create_new_candidate_for_feast_fv(data, version_tag)
-
 
 
     return {

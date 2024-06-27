@@ -1,84 +1,38 @@
-import pendulum
-import os
-import pandas as pd
-import json
-import requests
-from datetime import datetime, timedelta
-import boto3
-from io import StringIO
-from sqlalchemy import create_engine
-from src.helpers.reliable_tool import get_trustworthy_dataset
-from feast import FeatureStore
-
-import mlflow
-import tempfile
 import warnings
 
-from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow import DAG
 from airflow.decorators import task, dag
-from src.models.single_model import rf
-
-
+from utils.train_func import train_model_by_city_data_and_feature_version
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
-
-from src.train.single_model import mlflow_train_model
 load_dotenv(override=True)
 import os
-
 import warnings
 warnings.filterwarnings('ignore')
-
-city = 'hcm'
-version = 0
-model_name = 'rf'
-pretrained_file = f'/home/long/airflow/dags/models/{city}/{model_name}/v{version}/model.joblib'
-
-
-FS = json.load(open(f'/home/long/long/datn-feast/feature_repo/src/config/featureset/update_data/demo1/{city}_v{version}.json'))
-feature_dict = json.load(open(FS['featureset_path'], 'r'))
-cat_cols = feature_dict['cat_cols']
-num_cols = feature_dict['num_cols']
-
-all_cols = cat_cols + num_cols
-feast_dataset_name = FS["feast_dataset_name"]
-
-EXP = os.getenv('EXP')
 
 @dag("train_hcm_rf_model", tags = ["train_hcm_rf_model"], schedule='0 10,19 * * *', catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    @task(task_id="train_hcm_rf_model", retries=0)
-    def train():
+    @task(task_id="train_hcm_rf_model_v0", retries=0)
+    def train_v0():
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 0, model_name = 'rf')
 
-        fs = FeatureStore(repo_path=os.getenv('FEAST_FEATURE_REPO'))
-        train_data_source_name = feast_dataset_name
-        train_df = fs.get_saved_dataset(name=train_data_source_name).to_df()
-        test_df = get_trustworthy_dataset(city, version)
+    @task(task_id="train_hcm_rf_model_v1", retries=0)
+    def train_v1():
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 1, model_name = 'rf')
 
-        print('TRAIN_SHAPE:', train_df.shape)
-        print('TEST_SHAPE:', test_df.shape)
+    @task(task_id="train_hcm_rf_model_v2", retries=0)
+    def train_v2():
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 2, model_name = 'rf')
 
+    @task(task_id="train_hcm_rf_model_v4", retries=0)
+    def train_v4():
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 4, model_name = 'rf')
 
-        target_feature = 'target'
-        target_feature_alias = 'Price (million/m2)'
+    @task(task_id="train_hcm_rf_model_v5", retries=0)
+    def train_v5():
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 5, model_name = 'rf')
 
-        categorical_features_indices = [i for i, c in enumerate(all_cols) if c in cat_cols]
-
-        rf_model = rf.create_model(pretrained_file = pretrained_file)
-
-        train_rf_model_run_id = mlflow_train_model(
-            model = rf_model,
-            train_df = train_df,
-            test_df = test_df,
-            train_data_source_name = train_data_source_name,
-            experiment_name = f'hcm_rf_realestate_{EXP}',
-            selected_features = all_cols,
-            target_feature = target_feature,
-            target_feature_alias = target_feature_alias,
-            model_name = 'rf'
-        )
-
-    train()
+    [train_v0(), train_v1(), train_v2(), train_v4(), train_v5()]
 dag = taskflow()

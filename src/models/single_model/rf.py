@@ -6,7 +6,7 @@ from joblib import load
 from src.models.single_model.own import BKPriceEstimator
 
 def create_model(pretrained_file = None):
-    update_model = RandomForestRegressor(random_state=random.randint(3, 1000), n_estimators=1)
+    update_model = RandomForestRegressor(random_state=random.randint(3, 1000), n_estimators=100)
 
     model = BKPriceEstimator(
         pretrained_model_path = pretrained_file,

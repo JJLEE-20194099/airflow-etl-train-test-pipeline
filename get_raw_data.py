@@ -125,18 +125,8 @@ def crawl_meeyland_by_page(page):
     return []
 
 
-def crawl_meeyland_yield():
-    for page in tqdm(range(50, 150)):
-        data = crawl_meeyland_by_page(page)
-        if len(data):
-            reply = f'Crawling batch {len(data)} realestates - Here is a example: {data[0]}'
-            yield reply
-        else:
-            yield "Crawling..."
-
-
 def crawl_meeyland():
-    for page in range(50, 150):
+    for page in tqdm(range(50, 500)):
         data = crawl_meeyland_by_page(page)
         time.sleep(5)
 
@@ -150,4 +140,4 @@ dag = DAG('get_raw_data', default_args=default_args, schedule_interval='0 10,19 
 
 # [crawl_meeyland]
 
-# crawl_meeyland()
+crawl_meeyland()

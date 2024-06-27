@@ -54,15 +54,14 @@ def consume_messages():
 
         Redis().add_id_to_set(f'meeyland_offset_{message.offset}', 'meeyland_insert_db')
         record = nan_2_none(message_data)
-        print("New candidate")
         operations.append(
             InsertOne(record)
         )
 
         if len(operations) >= 20:
             collection.bulk_write(operations,ordered=False)
+            print(f"Insert batch size - {len(operations)} clean realestates to database")
             operations = []
-            print("Insert batch size - 20 records")
 
 
     # print(collection')

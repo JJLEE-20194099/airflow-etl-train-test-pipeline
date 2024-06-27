@@ -8,9 +8,9 @@ from src.models.single_model.own import BKPriceEstimator
 def create_model(cat_idxs = None, pretrained_file = None):
 
     if cat_idxs:
-        update_model = CatBoostRegressor(cat_features=cat_idxs, iterations=100, verbose = 100, random_state=random.randint(3, 1000))
+        update_model = CatBoostRegressor(cat_features=cat_idxs, iterations=1000, verbose = 100, random_state=random.randint(3, 1000))
     else:
-        update_model = CatBoostRegressor(iterations=100, verbose = 100, random_state=random.randint(3, 1000))
+        update_model = CatBoostRegressor(iterations=1000, verbose = 100, random_state=random.randint(3, 1000))
 
     model = BKPriceEstimator(
         pretrained_model_path = pretrained_file,

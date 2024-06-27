@@ -7,7 +7,7 @@ from joblib import load
 from src.models.single_model.own import BKPriceEstimator
 def create_model(pretrained_file = None):
 
-    update_model = LGBMRegressor(n_estimators = 100, random_state=random.randint(3, 1000))
+    update_model = LGBMRegressor(n_estimators = 1000, random_state=random.randint(3, 1000))
 
     model = BKPriceEstimator(
         pretrained_model_path = pretrained_file,
