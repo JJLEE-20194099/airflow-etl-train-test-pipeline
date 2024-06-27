@@ -136,8 +136,8 @@ default_args = {
     'retries': 0
 }
 dag = DAG('get_raw_data', default_args=default_args, schedule_interval='0 10,19 * * *', catchup=False)
-# crawl_meeyland = PythonOperator(task_id='get_raw_data', python_callable=crawl_meeyland, dag=dag)
+crawl_meeyland = PythonOperator(task_id='get_raw_data', python_callable=crawl_meeyland, dag=dag)
 
-# [crawl_meeyland]
+[crawl_meeyland]
 
-crawl_meeyland()
+# crawl_meeyland()

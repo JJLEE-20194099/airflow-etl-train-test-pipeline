@@ -16,23 +16,23 @@ def taskflow():
 
     @task(task_id="train_hcm_gbr_model_v0", retries=0)
     def train_v0():
-        train_model_by_city_data_and_feature_version(city = 'hcm', version = 0, model_name = 'gtr')
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 0, model_name = 'gbr')
 
     @task(task_id="train_hcm_gbr_model_v1", retries=0)
     def train_v1():
-        train_model_by_city_data_and_feature_version(city = 'hcm', version = 1, model_name = 'gtr')
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 1, model_name = 'gbr')
 
     @task(task_id="train_hcm_gbr_model_v2", retries=0)
     def train_v2():
-        train_model_by_city_data_and_feature_version(city = 'hcm', version = 2, model_name = 'gtr')
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 2, model_name = 'gbr')
 
     @task(task_id="train_hcm_gbr_model_v4", retries=0)
     def train_v4():
-        train_model_by_city_data_and_feature_version(city = 'hcm', version = 4, model_name = 'gtr')
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 4, model_name = 'gbr')
 
     @task(task_id="train_hcm_gbr_model_v5", retries=0)
     def train_v5():
-        train_model_by_city_data_and_feature_version(city = 'hcm', version = 5, model_name = 'gtr')
+        train_model_by_city_data_and_feature_version(city = 'hcm', version = 5, model_name = 'gbr')
 
     [train_v0(), train_v1(), train_v2(), train_v4(), train_v5()]
 dag = taskflow()

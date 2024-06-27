@@ -106,4 +106,17 @@ def clean_meeyland():
         processMeeyland(msg)
 
 
-clean_meeyland()
+default_args = {
+    'owner': 'airflow',
+    'start_date': datetime(2021, 5, 17),
+    'retries': 0
+}
+
+dag = DAG('clean_raw_data', default_args=default_args, schedule_interval='0 10,19 * * *', catchup=False)
+clean_meeyland = PythonOperator(task_id='clean_raw_data', python_callable=clean_meeyland, dag=dag)
+
+[clean_meeyland]
+
+
+
+# clean_meeyland()

@@ -47,12 +47,13 @@ def mlflow_train_model(
 
     timestamp = datetime.now().isoformat().split(".")[0].replace(":", ".")
 
-    print("Start to training")
     with mlflow.start_run(experiment_id=experiment_id, run_name=timestamp) as run:
 
         X_train, X_test, y_train, y_test = train_test_split_by_col(train_df = train_df, test_df = test_df, X_cols = selected_features, y_col = target_feature)
 
+        print("Start to training")
         model.fit(X_train, y_train)
+        print("End to training")
         model.predict(X_train)
         cv_results = model.cv_results_
         best_index = model.best_index_

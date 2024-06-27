@@ -77,10 +77,10 @@ default_args = {
     'retries': 0
 }
 dag = DAG('insert_clean_data', default_args=default_args, schedule_interval='0 10,19 * * *', catchup=False)
-# consume_messages = PythonOperator(task_id='insert_clean_data', python_callable=consume_messages, dag=dag)
+consume_messages = PythonOperator(task_id='insert_clean_data', python_callable=consume_messages, dag=dag)
 
-# [consume_messages]
+[consume_messages]
 
-consume_messages()
+# consume_messages()
 
 
