@@ -36,3 +36,4 @@ def taskflow():
 
     [train_v0(), train_v1(), train_v2(), train_v4(), train_v5()]
 dag = taskflow()
+

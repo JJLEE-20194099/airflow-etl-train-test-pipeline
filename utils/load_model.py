@@ -25,7 +25,7 @@ def init(model_name, pretrained_file, categorical_features_indices):
     if model_name == 'la':
         return la.create_model(pretrained_file = pretrained_file)
     if model_name == 'lgbm':
-        lgbm.create_model(pretrained_file = pretrained_file)
+        return lgbm.create_model(pretrained_file = pretrained_file)
     if model_name == 'linear':
         return linear.create_model(pretrained_file = pretrained_file)
     if model_name == 'mlp':
