@@ -117,7 +117,12 @@ def train_ai_model(body: ModelNameCityVersion, background_tasks: BackgroundTasks
             priority=priority_map[modelname]
         )
     else:
-        background_tasks.add_task(train_model_by_city_data_and_feature_version, city, feature_set_version, modelname)
+        train_model_by_city_data_and_feature_version.apply_async(
+            (city, feature_set_version, modelname),
+            queue=f'{city}_other',
+            priority=priority_map[modelname]
+        )
+        # background_tasks.add_task(train_model_by_city_data_and_feature_version, city, feature_set_version, modelname)
 
     return 1
 

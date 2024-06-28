@@ -13,7 +13,7 @@ from sklearn.metrics import (
     r2_score,
 )
 
-def plot_prediction_error(y_test, y_pred, style="seaborn", plot_size=(10, 8)):
+def plot_prediction_error(y_test, y_pred, style="seaborn", plot_size=(30, 24)):
     with plt.style.context(style=style):
         fig, ax = plt.subplots(figsize=plot_size)
         ax.scatter(y_pred, y_test - y_pred)
@@ -25,7 +25,7 @@ def plot_prediction_error(y_test, y_pred, style="seaborn", plot_size=(10, 8)):
     plt.close(fig)
     return fig
 
-def plot_residuals(y_test, y_pred, style="seaborn", plot_size=(10, 8)):
+def plot_residuals(y_test, y_pred, style="seaborn", plot_size=(30, 24)):
     residuals = y_test - y_pred
 
     with plt.style.context(style=style):
@@ -51,7 +51,7 @@ def plot_residuals(y_test, y_pred, style="seaborn", plot_size=(10, 8)):
     plt.close(fig)
     return fig
 
-def plot_coefficients(model, feature_names, style="seaborn", plot_size=(10, 8)):
+def plot_coefficients(model, feature_names, style="seaborn", plot_size=(30, 24)):
     with plt.style.context(style=style):
         fig, ax = plt.subplots(figsize=plot_size)
         ax.barh(feature_names, model.coef_)
@@ -63,7 +63,7 @@ def plot_coefficients(model, feature_names, style="seaborn", plot_size=(10, 8)):
     return fig
 
 def plot_correlation_matrix_and_save(
-    df, style="seaborn", plot_size=(10, 8), path="/tmp/corr_plot.png"
+    df, style="seaborn", plot_size=(30, 24), path="/tmp/corr_plot.png"
 ):
     with plt.style.context(style=style):
         fig, ax = plt.subplots(figsize=plot_size)
@@ -96,7 +96,7 @@ def plot_correlation_matrix_and_save(
     fig.savefig(save_path)
 
 
-def plot_qq(y_test, y_pred, style="seaborn", plot_size=(10, 8)):
+def plot_qq(y_test, y_pred, style="seaborn", plot_size=(30, 24)):
     residuals = y_test - y_pred
     with plt.style.context(style=style):
         fig, ax = plt.subplots(figsize=plot_size)

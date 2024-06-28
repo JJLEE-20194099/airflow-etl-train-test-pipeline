@@ -49,7 +49,7 @@ def mlflow_train_model(
 
     with mlflow.start_run(experiment_id=experiment_id, run_name=timestamp) as run:
 
-        X_train, X_test, y_train, y_test = train_test_split_by_col(train_df = train_df, test_df = test_df, X_cols = selected_features, y_col = target_feature)
+        X_train, X_test, y_train, y_test = train_test_split_by_col(train_df = train_df, test_df = test_df, X_cols = selected_features, y_col = target_feature, model_name = 'cat')
 
         print("Start to training")
         model.fit(X_train, y_train)

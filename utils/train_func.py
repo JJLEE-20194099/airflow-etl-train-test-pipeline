@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 from src.train.single_model import mlflow_train_model
 from utils.load_model import init
+from utils.config import order_config
 load_dotenv(override=True)
 import os
 import json
@@ -29,7 +30,8 @@ queue_list = []
 
 for model_name in ['cat',
     'lgbm',
-    'xgb'
+    'xgb',
+    'other'
 ]:
     for city in ['hn', 'hcm']:
         queue_name = f'{city}_{model_name}'
@@ -56,7 +58,11 @@ def train_model_by_city_data_and_feature_version(city = 'hcm', version = 0, mode
     cat_cols = feature_dict['cat_cols']
     num_cols = feature_dict['num_cols']
 
-    all_cols = cat_cols + num_cols
+    if order_config[model_name] == 'cat-num':
+        all_cols = cat_cols + num_cols
+    elif order_config[model_name] == 'num-cat':
+        all_cols = num_cols + cat_cols
+
     feast_dataset_name = FS["feast_dataset_name"]
     EXP = os.getenv('EXP')
 
