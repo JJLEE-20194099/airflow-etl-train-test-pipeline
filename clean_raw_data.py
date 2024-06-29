@@ -75,7 +75,6 @@ class Kafka:
         return consumer
 
 
-KafkaInstance = Kafka(broker_id = 0)
 MAX_THREAD = 10
 
 with open('streets.json', encoding='utf-8') as f:
@@ -84,7 +83,7 @@ with open('streets.json', encoding='utf-8') as f:
 
 locationql = [f'{item["STREET"].lower()}, {item["WARD"].lower()}, {item["DISTRICT"].lower()}' for item in tqdm(streets)]
 
-def processMeeyland(msg):
+def processMeeyland(msg, KafkaInstance):
     data = msg.value
     dataMeeyland = transferMeeyland(data)
     if dataMeeyland != None:
@@ -96,6 +95,7 @@ def processMeeyland(msg):
 
 
 def clean_meeyland():
+    KafkaInstance = Kafka(broker_id = 0)
     consumer = KafkaInstance.kafka_consumer("raw_meeyland", ["raw_meeyland"])
     for msg in tqdm(consumer):
 
@@ -103,7 +103,7 @@ def clean_meeyland():
             print("Ignore Processed Messages")
             continue
         Redis().add_id_to_set(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata')
-        processMeeyland(msg)
+        processMeeyland(msg,KafkaInstance )
 
 
 default_args = {
