@@ -21,6 +21,9 @@ from schema.preprocess.encode import encoder_dict
 from utils.infer_tool import get_inference_by_city_version
 from utils.train_func import train_model_by_city_data_and_feature_version
 
+from src.extensions.batching.batch_processor import BatchProcessor
+from src.extensions.batching.models import BatchIn, BatchOut
+
 
 app = FastAPI()
 
@@ -207,3 +210,15 @@ def predict_realestate(body:RealEstateData):
 
 
     return infer_val_dict
+
+@app.post(
+    "/predict-realestate-batch",
+    tags = ["predict-realestate-batch"],
+    responses={403: {"description": "Operation forbidden"}},
+    response_model = BatchOut
+)
+async def predict_realestate_batch(batch: BatchIn) -> BatchOut:
+    host = batch.base_url
+    async with BatchProcessor(host) as batch_processor:
+        responses = await batch_processor.process(batch.requests)
+        return BatchOut(responses=responses)

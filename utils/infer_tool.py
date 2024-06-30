@@ -46,7 +46,8 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
     infer_val_dict = {}
 
 
-    for model_name in tqdm(['cat','lgbm', 'xgb', 'etr', 'rf']):
+    for model_name in tqdm(['cat','lgbm', 'xgb']):
+    # for model_name in tqdm(['cat','lgbm', 'xgb', 'etr', 'rf']):
     # for model_name in tqdm(['abr', 'cat', 'etr', 'gbr', 'knr', 'la', 'lgbm', 'linear', 'mlp', 'rf', 'ridge', 'xgb']):
 
         model = load(f'/home/long/airflow/dags/models/{prefix}/{model_name}/{version}/model.joblib')
@@ -77,7 +78,11 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
     if df['narrow_alley'].tolist()[0] == 2:
         bonus1 += 58.23 / 2
 
-    infer_val_dict["bagging"] = (infer_val_dict["cat"] * 10 + infer_val_dict["lgbm"] * 10 + infer_val_dict["xgb"] * 80 ) / 100
+    if bonus1 > 0 or bonus2 > 0:
+        infer_val_dict["bagging"] = max(infer_val_dict["cat"], infer_val_dict["lgbm"], infer_val_dict["xgb"]) + bonus2 / 10
+    else:
+        infer_val_dict["bagging"] = (infer_val_dict["cat"] * 10 + infer_val_dict["lgbm"] * 10 + infer_val_dict["xgb"] * 80 ) / 100
+
     val = infer_val_dict["bagging"] + bonus1 + bonus2
     district = df['district'].tolist()[0]
     infer_val_dict["BKPrice System PostProcessing"] = bkpostprocessing(val, district)
