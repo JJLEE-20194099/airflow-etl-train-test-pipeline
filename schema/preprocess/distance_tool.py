@@ -148,8 +148,8 @@ def get_distance_feature(city, candidate_lat, candidate_lon, district_lat, distr
         lat, lon = best_arr[i][0], best_arr[i][1]
         name = best_arr[i][2]
         city_str = 'hn' if best_arr[i][3] == 0 else 'hcm'
-
-        obj[f'distance_{city_str}_{name}'] = distance(candidate_lat, candidate_lon, lat, lon, city, best_arr[i][3])
+        tmp = distance(candidate_lat, candidate_lon, lat, lon, city, best_arr[i][3])
+        obj[f'distance_{city_str}_{name}'] = tmp
 
     obj['distance_district'] = distance_func(candidate_lat, candidate_lon, district_lat, district_lon)
 

@@ -51,8 +51,8 @@ def cal_bagging(cat, lgbm,xgb, bonus1, bonus2):
     else:
         return (cat * 10 + lgbm * 10 + xgb * 80 ) / 100
 
-def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=None):
-    prefix = 'hcm' if city == 0 else 'hn'
+def get_inference_by_city_version(city = 'hn', version:ModelVersionEnum = 'v3', df=None):
+    prefix = 'hcm' if city == 'hcm' else 'hn'
 
     path = f"/mnt/long/long/datn-feast/data/featureset/{prefix}_v{feature_version_config[version]}.json"
 
@@ -60,6 +60,7 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
 
     cat_cols = featureset['cat_cols']
     num_cols = featureset['num_cols']
+
 
     infer_val_dict = {}
 
