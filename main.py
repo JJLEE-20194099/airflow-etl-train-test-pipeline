@@ -32,9 +32,11 @@ from schema.realestate import RealEstateData
 from schema.version import ModelNameCityVersion
 from schema.preprocess.encode import encoder_dict
 import time
+from tqdm import tqdm
 
-from utils.infer_tool import get_inference_cols_by_name
+from utils.infer_tool import get_inference_by_city_version
 from utils.train_func import train_model_by_city_data_and_feature_version
+from utils.config import order_config
 
 
 app = FastAPI()
@@ -179,8 +181,9 @@ def predict_realestate(body:RealEstateData):
 
     pca_dict = get_pca_feature(body)
     body = {**body, **pca_dict}
+    df = pd.DataFrame([body])
 
-    infer_cols = get_inference_cols_by_name(city = body['city'], version = body['version'])
+    infer_val_dict = get_inference_by_city_version(city = body['city'], version = body['version'], df = df)
 
 
-    return infer_cols
+    return infer_val_dict
