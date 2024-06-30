@@ -95,7 +95,7 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
     df['bagging'] = df.apply(lambda x: cal_bagging(x['cat'], x['lgbm'],x['xgb'], x['bonus1'], x['bonus2']), axis = 1)
     df['BKPrice System PostProcessing'] = df['bagging'] + df['bonus1'] + df['bonus2']
 
-    df['BKPrice System PostProcessing'] = df.apply(lambda x: bkpostprocessing(x['BKPrice System PostProcessing'], x['district']), version = 1)
+    df['BKPrice System PostProcessing'] = df.apply(lambda x: bkpostprocessing(x['BKPrice System PostProcessing'], x['district']), axis = 1)
 
 
     return df['BKPrice System PostProcessing'].tolist()

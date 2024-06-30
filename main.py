@@ -134,6 +134,14 @@ def process(body):
         body = dict(body)
     except:pass
 
+    body = RealEstateData.parse_obj(body)
+
+    try:
+        body = dict(body)
+    except:pass
+
+    # print(body)
+
     body['time'] = datetime.now()
 
     body['w'] = body['w'] if 'w' in body and body['w'] != -1 else body['frontWidth']
@@ -219,14 +227,15 @@ def predict_realestate(body:RealEstateData):
 @app.post(
     "/predict-realestate-batch",
     tags = ["predict-realestate-batch"],
-    responses={403: {"description": "Operation forbidden"}},
-    response_model = BatchOut
+    responses={403: {"description": "Operation forbidden"}}
 )
-async def predict_realestate_batch(batch: BatchIn) -> BatchOut:
-    body_list = [process(body["body"]) for body in batch.requests]
+async def predict_realestate_batch(batch: BatchIn):
+    body_list = [process(body.body) for body in batch.requests]
+
+    body = batch.requests[0].body
 
     df = pd.DataFrame(body_list)
 
-    return get_inference_by_city_version(city = body["body"]['city'], version = body["body"]['version'], df = df)
+    return get_inference_by_city_version(city = body['city'], version = body['version'], df = df)
 
 
