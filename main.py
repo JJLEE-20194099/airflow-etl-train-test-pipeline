@@ -1,24 +1,10 @@
 import os
-import json
 from fastapi import FastAPI
-from fastapi import APIRouter, Depends, BackgroundTasks
-from fastapi import HTTPException, File, UploadFile
-from dataclasses import astuple
-from fastapi.responses import FileResponse
+from fastapi import BackgroundTasks
 import requests
-from tqdm import tqdm
-from pydantic import BaseModel
-import csv
 import pymongo
 import pandas as pd
-from dataclasses import dataclass
-import numpy as np
-import lightgbm as lgb
-import math
-from typing import Union, List, Optional
-import regex as re
 from datetime import datetime
-from enum import Enum
 
 from src.helpers.build_offline_data_tool import build_offline_batch_data
 from schema.preprocess.distance_tool import get_distance_feature
@@ -31,12 +17,9 @@ from schema.preprocess.quadtree import get_nearest_feature
 from schema.realestate import RealEstateData
 from schema.version import ModelNameCityVersion
 from schema.preprocess.encode import encoder_dict
-import time
-from tqdm import tqdm
 
 from utils.infer_tool import get_inference_by_city_version
 from utils.train_func import train_model_by_city_data_and_feature_version
-from utils.config import order_config
 
 
 app = FastAPI()
@@ -128,6 +111,21 @@ def train_ai_model(body: ModelNameCityVersion, background_tasks: BackgroundTasks
 
     return 1
 
+import json
+with open('streets.json', encoding='utf-8') as f:
+   streets = json.load(f)
+
+def get_latlon_by_address(district, ward, street, city):
+    city_streets = [item for item in streets if item['CITY'].lower() == city.lower()]
+    district_streets = [item for item in city_streets if item['DISTRICT'].lower() == district.lower()]
+    ward_streets = [item for item in district_streets if item['WARD'].lower() == ward.lower()]
+    street_streets = [item for item in ward_streets if item['STREET'].lower() == street.lower()]
+
+    return {
+        "lat": street_streets[0]["LAT"],
+        "lon": street_streets[0]["LNG"]
+    }
+
 @app.post("/predict-realestate")
 def predict_realestate(body:RealEstateData):
 
@@ -138,6 +136,7 @@ def predict_realestate(body:RealEstateData):
     body['w'] = body['w'] if 'w' in body and body['w'] != -1 else body['frontWidth']
     body['h'] = body['h'] if 'h' in body and body['h'] != -1 else body['landSize'] / body['w']
 
+    body['latlon'] = get_latlon_by_address(body['district'], body['ward'], body['street'], body['city'])
 
     facility_count_dict = count_facility_inference(body['latlon'].lat, body['latlon'].lon)
     body = {**body, **facility_count_dict}
@@ -145,6 +144,24 @@ def predict_realestate(body:RealEstateData):
     body['lat'] = body['latlon'].lat
     body['lon'] = body['latlon'].lon
 
+    if body['frontRoadWidth']:
+
+        if body['frontRoadWidth'] <= 2.5:
+            body['accessibility'] =  'theBottleNeckPoint'
+        elif body['frontRoadWidth'] > 2.5 and body['frontRoadWidth'] <= 3:
+            body['accessibility'] =  'narrorRoad'
+        elif body['frontRoadWidth'] > 3 and body['frontRoadWidth'] <= 4:
+            body['accessibility'] =  'fitOneCarAndOneMotorbike'
+        elif body['frontRoadWidth'] > 4 and body['frontRoadWidth'] <= 5:
+            body['accessibility'] =  'parkCar'
+        elif body['frontRoadWidth'] > 5 and body['frontRoadWidth'] <= 7:
+            body['accessibility'] =  'fitTwoCars'
+        elif body['frontRoadWidth'] > 7:
+            body['accessibility'] =  'fitThreeCars'
+    else:
+        body['accessibility'] = 'notInTheAlley'
+
+    print(body)
 
     for col in [
         "city",

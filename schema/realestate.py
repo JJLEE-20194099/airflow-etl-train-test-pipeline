@@ -31,7 +31,7 @@ class FacadeEnum(str, Enum):
 
 class HouseDirectionEnum(str, Enum):
     southeast = "southeast"
-    southwest = "southwest="
+    southwest = "southwest"
     northeast = "northeast"
     northwest = "northwest"
     south = "south"
@@ -42,7 +42,7 @@ class HouseDirectionEnum(str, Enum):
 class AccessibilityEnum(str, Enum):
     notInTheAlley = "notInTheAlley"
     fitThreeCars = "fitThreeCars"
-    parkCar = "notInTheAlley"
+    parkCar = "parkCar"
     fitOneCarAndOneMotorbike = "fitOneCarAndOneMotorbike"
     fitTwoCars = "fitTwoCars"
     theBottleNeckPoint = "theBottleNeckPoint"
@@ -90,13 +90,11 @@ class RealEstateData(BaseModel):
     typeOfRealEstate: Optional[TypeOfRealEstateEnum] = "privateLand"
     facade: Optional[FacadeEnum] = "oneSideOpen"
     houseDirection: Optional[HouseDirectionEnum] = "east"
-    accessibility: Optional[AccessibilityEnum] = "fitThreeCars"
 
     endWidth: float
     frontRoadWidth: float
     frontWidth: float
 
-    latlon: GeolocationModel
 
     version: ModelVersionEnum = 'full_features'
 

@@ -76,10 +76,24 @@ def get_nearest_feature(lat, lon):
     source_cols_list = [lat_cols, lon_cols, district_cols, street_cols, ward_cols]
     target_cols_list = [format_lat_cols, format_lon_cols, format_district_cols, format_street_cols, format_ward_cols]
 
-
     for source_cols, target_cols in zip(source_cols_list, target_cols_list):
         rename_dict = dict(zip(source_cols, target_cols))
         nearest_df = nearest_df.rename(columns = rename_dict)
+
+
+
+    for i in range(9):
+        try:
+            nearest_df[f'nearest_{i}_lat']
+        except:
+            nearest_df[f'nearest_{i}_lat'] = np.nan
+            nearest_df[f'nearest_{i}_lon'] = np.nan
+            nearest_df[f'nearest_{i}_district'] = np.nan
+            nearest_df[f'nearest_{i}_ward'] = np.nan
+            nearest_df[f'nearest_{i}_street'] = np.nan
+
+            print(f"Missing nearest - {i}")
+
 
     del nearest_df['lat']
     del nearest_df['lon']
@@ -95,6 +109,8 @@ def get_nearest_feature(lat, lon):
             obj[f'distance_nearest_{i}'] = math.log(obj[f'distance_nearest_{i}'])
         except:
             obj[f'distance_nearest_{i}'] = np.nan
+
+    # print(obj)
 
     return obj
 
