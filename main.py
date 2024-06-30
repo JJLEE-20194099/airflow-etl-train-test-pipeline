@@ -122,8 +122,8 @@ def get_latlon_by_address(district, ward, street, city):
     street_streets = [item for item in ward_streets if item['STREET'].lower() == street.lower()]
 
     return {
-        "lat": street_streets[0]["LAT"],
-        "lon": street_streets[0]["LNG"]
+        "lat": float(street_streets[0]["LAT"]),
+        "lon": float(street_streets[0]["LNG"])
     }
 
 @app.post("/predict-realestate")
@@ -136,13 +136,15 @@ def predict_realestate(body:RealEstateData):
     body['w'] = body['w'] if 'w' in body and body['w'] != -1 else body['frontWidth']
     body['h'] = body['h'] if 'h' in body and body['h'] != -1 else body['landSize'] / body['w']
 
-    body['latlon'] = get_latlon_by_address(body['district'], body['ward'], body['street'], body['city'])
+    district, ward, street = [item.strip().lower() for item in body['street'].split(" - ")]
 
-    facility_count_dict = count_facility_inference(body['latlon'].lat, body['latlon'].lon)
+    body['latlon'] = get_latlon_by_address(district, ward, street, body['city'])
+
+    facility_count_dict = count_facility_inference(body['latlon']['lat'], body['latlon']['lon'])
     body = {**body, **facility_count_dict}
 
-    body['lat'] = body['latlon'].lat
-    body['lon'] = body['latlon'].lon
+    body['lat'] = body['latlon']['lat']
+    body['lon'] = body['latlon']['lon']
 
     if body['frontRoadWidth']:
 
