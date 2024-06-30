@@ -1,5 +1,6 @@
 import json
 import math
+import numpy as np
 
 cat_cols = ['nearest_3_street',
  'nearest_2_street',
@@ -52,9 +53,9 @@ def fillna(obj, cat_cols = cat_cols):
         mean_dict = json.load(open('/mnt/long/long/datn-feast/eda/hn_mean_num_col.json', 'r'))
         num_cols = json.load(open('/mnt/long/long/datn-feast/data/featureset/hn_v1.json', 'r'))['num_cols']
     for col in num_cols:
-        if obj[col]:
-            continue
-        obj[col] = mean_dict[col]
+        if obj[col] is None or obj != np.nan:
+            obj[col] = mean_dict[col]
+            print(col)
 
     return obj
 

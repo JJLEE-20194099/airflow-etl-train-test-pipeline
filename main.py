@@ -163,7 +163,7 @@ def predict_realestate(body:RealEstateData):
     else:
         body['accessibility'] = 'notInTheAlley'
 
-    print(body)
+    # print(body)
 
     for col in [
         "city",
@@ -196,6 +196,8 @@ def predict_realestate(body:RealEstateData):
     body = fillna(body)
     gmm_dict = get_gmm_feature(body)
     body = {**body, **gmm_dict}
+
+    print(body)
 
 
     pca_dict = get_pca_feature(body)

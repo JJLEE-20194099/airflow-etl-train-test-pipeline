@@ -86,11 +86,11 @@ def get_nearest_feature(lat, lon):
         try:
             nearest_df[f'nearest_{i}_lat']
         except:
-            nearest_df[f'nearest_{i}_lat'] = np.nan
-            nearest_df[f'nearest_{i}_lon'] = np.nan
-            nearest_df[f'nearest_{i}_district'] = np.nan
-            nearest_df[f'nearest_{i}_ward'] = np.nan
-            nearest_df[f'nearest_{i}_street'] = np.nan
+            nearest_df[f'nearest_{i}_lat'] = None
+            nearest_df[f'nearest_{i}_lon'] = None
+            nearest_df[f'nearest_{i}_district'] = None
+            nearest_df[f'nearest_{i}_ward'] = None
+            nearest_df[f'nearest_{i}_street'] = None
 
             print(f"Missing nearest - {i}")
 
