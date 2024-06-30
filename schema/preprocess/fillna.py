@@ -53,9 +53,9 @@ def fillna(obj, cat_cols = cat_cols):
         mean_dict = json.load(open('/mnt/long/long/datn-feast/eda/hn_mean_num_col.json', 'r'))
         num_cols = json.load(open('/mnt/long/long/datn-feast/data/featureset/hn_v1.json', 'r'))['num_cols']
     for col in num_cols:
-        if obj[col] is None or obj != np.nan:
+        print(col, obj[col])
+        if obj[col] is None:
             obj[col] = mean_dict[col]
-            print(col)
 
     return obj
 

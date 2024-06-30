@@ -5,6 +5,7 @@ from joblib import load
 from utils.config import order_config
 import numpy as np
 import lightgbm as lgb
+import pandas as pd
 
 feature_version_config = {
     "v0": 0,
@@ -14,6 +15,23 @@ feature_version_config = {
     "v4": 4,
     "v5": 5,
 }
+
+min_max_df = pd.read_csv('utils/minmax.csv')
+
+def minmax_refine(val, district):
+    t = min_max_df[min_max_df["district"] == district]
+    min_val = t['target_min'].iloc[0]
+    max_val = t['target_max'].iloc[0]
+
+    if val < min_val:
+        return min_val
+    if val > max_val:
+        return max_val
+    return val
+
+def bkpostprocessing(val, district):
+    return minmax_refine(val, district)
+
 
 def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=None):
     prefix = 'hcm' if city == 0 else 'hn'
@@ -27,7 +45,10 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
 
     infer_val_dict = {}
 
-    for model_name in tqdm(['abr', 'cat', 'etr', 'gbr', 'knr', 'la', 'lgbm', 'linear', 'mlp', 'rf', 'ridge', 'xgb']):
+
+    for model_name in tqdm(['cat','lgbm', 'xgb', 'etr', 'rf']):
+    # for model_name in tqdm(['abr', 'cat', 'etr', 'gbr', 'knr', 'la', 'lgbm', 'linear', 'mlp', 'rf', 'ridge', 'xgb']):
+
         model = load(f'/home/long/airflow/dags/models/{prefix}/{model_name}/{version}/model.joblib')
         if model_name == 'lgbm':
             model.booster_.save_model('lgbm_cache.txt')
@@ -45,6 +66,21 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
 
         X = df[all_cols]
         infer_val_dict[model_name] = model.predict(X)[0].item()
+    bonus1 = 0
+    bonus2 = 0
+    if df['facility_check_ok'].tolist()[0]:
+        bonus2 = 58.23
+
+    if df['narrow_alley'].tolist()[0] == 1:
+        bonus1+= 58.23
+
+    if df['narrow_alley'].tolist()[0] == 2:
+        bonus1 += 58.23 / 2
+
+    infer_val_dict["bagging"] = (infer_val_dict["cat"] * 10 + infer_val_dict["lgbm"] * 10 + infer_val_dict["xgb"] * 80 ) / 100
+    val = infer_val_dict["bagging"] + bonus1 + bonus2
+    district = df['district'].tolist()[0]
+    infer_val_dict["BKPrice System PostProcessing"] = bkpostprocessing(val, district)
 
     return infer_val_dict
 

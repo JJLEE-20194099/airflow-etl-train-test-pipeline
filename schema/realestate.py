@@ -95,6 +95,9 @@ class RealEstateData(BaseModel):
     frontRoadWidth: float
     frontWidth: float
 
+    facility_check_ok:bool
+    narrow_alley:int
+
 
     version: ModelVersionEnum = 'full_features'
 

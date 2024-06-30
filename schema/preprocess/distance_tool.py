@@ -159,6 +159,8 @@ def get_distance_feature(city, candidate_lat, candidate_lon, district_lat, distr
         else:
             obj[c] = math.log(obj[c])
 
+    print(obj)
+
     return obj
 
 

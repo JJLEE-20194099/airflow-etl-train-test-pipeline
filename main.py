@@ -146,7 +146,7 @@ def predict_realestate(body:RealEstateData):
     body['lat'] = body['latlon']['lat']
     body['lon'] = body['latlon']['lon']
 
-    if body['frontRoadWidth']:
+    if body['frontRoadWidth'] > 0:
 
         if body['frontRoadWidth'] <= 2.5:
             body['accessibility'] =  'theBottleNeckPoint'
@@ -197,7 +197,6 @@ def predict_realestate(body:RealEstateData):
     gmm_dict = get_gmm_feature(body)
     body = {**body, **gmm_dict}
 
-    print(body)
 
 
     pca_dict = get_pca_feature(body)
