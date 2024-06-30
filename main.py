@@ -129,10 +129,10 @@ def get_latlon_by_address(district, ward, street, city):
         "lon": float(street_streets[0]["LNG"])
     }
 
-@app.post("/predict-realestate")
-def predict_realestate(body:RealEstateData):
-
-    body = dict(body)
+def process(body):
+    try:
+        body = dict(body)
+    except:pass
 
     body['time'] = datetime.now()
 
@@ -204,12 +204,17 @@ def predict_realestate(body:RealEstateData):
 
     pca_dict = get_pca_feature(body)
     body = {**body, **pca_dict}
+    return body
+
+@app.post("/predict-realestate")
+def predict_realestate(body:RealEstateData):
+
+    body = process(body)
     df = pd.DataFrame([body])
 
-    infer_val_dict = get_inference_by_city_version(city = body['city'], version = body['version'], df = df)
+    infer_val = get_inference_by_city_version(city = body['city'], version = body['version'], df = df)
 
-
-    return infer_val_dict
+    return infer_val
 
 @app.post(
     "/predict-realestate-batch",
@@ -218,7 +223,10 @@ def predict_realestate(body:RealEstateData):
     response_model = BatchOut
 )
 async def predict_realestate_batch(batch: BatchIn) -> BatchOut:
-    host = batch.base_url
-    async with BatchProcessor(host) as batch_processor:
-        responses = await batch_processor.process(batch.requests)
-        return BatchOut(responses=responses)
+    body_list = [process(body["body"]) for body in batch.requests]
+
+    df = pd.DataFrame(body_list)
+
+    return get_inference_by_city_version(city = body["body"]['city'], version = body["body"]['version'], df = df)
+
+

@@ -33,6 +33,24 @@ def bkpostprocessing(val, district):
     return minmax_refine(val, district)
 
 
+def cal_bonus2(val):
+    if val:
+        return 58.23
+    return 0
+
+def cal_bonus1(val):
+    if val == 1:
+        return 58.23
+    if val == 2:
+        return 58.23 / 2
+    return 0
+
+def cal_bagging(cat, lgbm,xgb, bonus1, bonus2):
+    if bonus1 > 0 or bonus2 > 0:
+        return max(cat, lgbm, xgb) + bonus2 / 10
+    else:
+        return (cat * 10 + lgbm * 10 + xgb * 80 ) / 100
+
 def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=None):
     prefix = 'hcm' if city == 0 else 'hn'
 
@@ -66,28 +84,21 @@ def get_inference_by_city_version(city = 0, version:ModelVersionEnum = 'v3', df=
             all_cols =  cat_cols + num_cols
 
         X = df[all_cols]
-        infer_val_dict[model_name] = model.predict(X)[0].item()
-    bonus1 = 0
-    bonus2 = 0
-    if df['facility_check_ok'].tolist()[0]:
-        bonus2 = 58.23
+        infer_val_dict[model_name] = [t.item() for t in model.predict(X)]
 
-    if df['narrow_alley'].tolist()[0] == 1:
-        bonus1+= 58.23
+    df['bonus2'] = df['facility_check_ok'].apply(cal_bonus2)
+    df['bonus1'] = df['narrow_alley'].apply(cal_bonus1)
+    df['cat'] = infer_val_dict["cat"]
+    df['lgbm'] = infer_val_dict["lgbm"]
+    df['xgb'] = infer_val_dict["xgb"]
 
-    if df['narrow_alley'].tolist()[0] == 2:
-        bonus1 += 58.23 / 2
+    df['bagging'] = df.apply(lambda x: cal_bagging(x['cat'], x['lgbm'],x['xgb'], x['bonus1'], x['bonus2']), axis = 1)
+    df['BKPrice System PostProcessing'] = df['bagging'] + df['bonus1'] + df['bonus2']
 
-    if bonus1 > 0 or bonus2 > 0:
-        infer_val_dict["bagging"] = max(infer_val_dict["cat"], infer_val_dict["lgbm"], infer_val_dict["xgb"]) + bonus2 / 10
-    else:
-        infer_val_dict["bagging"] = (infer_val_dict["cat"] * 10 + infer_val_dict["lgbm"] * 10 + infer_val_dict["xgb"] * 80 ) / 100
+    df['BKPrice System PostProcessing'] = df.apply(lambda x: bkpostprocessing(x['BKPrice System PostProcessing'], x['district']), version = 1)
 
-    val = infer_val_dict["bagging"] + bonus1 + bonus2
-    district = df['district'].tolist()[0]
-    infer_val_dict["BKPrice System PostProcessing"] = bkpostprocessing(val, district)
 
-    return infer_val_dict
+    return df['BKPrice System PostProcessing'].tolist()
 
 
 
