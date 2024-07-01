@@ -108,7 +108,7 @@ def get_nearest_feature(lat, lon):
             obj[f'distance_nearest_{i}'] = distance_func(lat, lon, obj[f'nearest_{i}_lat'], obj[f'nearest_{i}_lon'])
             obj[f'distance_nearest_{i}'] = math.log(obj[f'distance_nearest_{i}'])
         except:
-            obj[f'distance_nearest_{i}'] = np.nan
+            obj[f'distance_nearest_{i}'] = -1
 
     # print(obj)
 

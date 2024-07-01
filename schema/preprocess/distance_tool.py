@@ -30,6 +30,7 @@ def distance_func(lat1: float, lon1: float, lat2: float, lon2: float):
         return d*1000
     except:
         print(f"Distance_Func error with: {(lat1, lon1, lat2, lon2)}")
+        return -1
 
 def distance(lat1, lon1, lat2, lon2, city1, city2):
     if city1 != city2:
@@ -155,7 +156,7 @@ def get_distance_feature(city, candidate_lat, candidate_lon, district_lat, distr
 
     for c in distance_cols:
         if obj[c] < 0:
-            obj[c] = None
+            obj[c] = -1
         else:
             obj[c] = math.log(obj[c])
 

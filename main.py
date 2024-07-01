@@ -208,6 +208,7 @@ def process(body):
     gmm_dict = get_gmm_feature(body)
     body = {**body, **gmm_dict}
 
+    print(body)
 
 
     pca_dict = get_pca_feature(body)
