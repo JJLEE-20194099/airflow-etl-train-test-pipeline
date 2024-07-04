@@ -62,7 +62,7 @@ class Kafka:
         Returns:
             _type_: False if send fail, True if send success
         """
-        status = self.producer.send(kafka_topic, value = json.dumps(data).encode('utf-8'))
+        status = self.producer.send(kafka_topic, value = json.dumps(data).encode('utf-8'), partition = 0)
         self.producer.flush()
         if status.is_done == True:
             return True

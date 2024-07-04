@@ -1,6 +1,9 @@
 import datetime
 import json
 import re
+
+from datetime import datetime
+
 with open('./streets.json', 'r') as f:
    streets = json.load(f)
 def search_street(location):
@@ -240,51 +243,32 @@ def transferMeeyland(a):
    data_merge = {
                "propertyType": propertyType_,
                "propertyStatus": "SURVEYING",
-               "mediaInfo": { "propertyGeneralImage" : [],
-                              "houseTourVideo" : [], # chưa có video
-                              "certificateOfLandUseRight": certificateOfLandUseRight(a),
-                              "constructionPermit": { "certificateStatus": "no", "media": []  }},
-               "houseInfo": { "value": houseInfo(a), "status": "UNSELECTED", "comment": [] },
-               "propertyBasicInfo": { "landType": { "comment": [], "status": "UNSELECTED", "value": propertyBasicInfo(a) },
-                  "accessibility": { "comment": [], "status": "UNSELECTED", "value": accessibility(a) },
-                  "distanceToNearestRoad": { "comment": [], "status": "UNSELECTED", "value": 0 },
-                  "frontRoadWidth": { "comment": [], "status": "UNSELECTED", "value": 0 },
-                  "address": { "comment": [], "status": "UNSELECTED", "value": address_[0] },
-                  "description": { "comment": [], "status": "UNSELECTED", "value": a['content'] },
-                  "geolocation": { "comment": [], "status": "UNSELECTED", "value":{
-                        "latitude": { "comment": [], "status": "UNSELECTED", "value": address_[1] },
-                        "longitude": { "comment": [], "status": "UNSELECTED", "value": address_[2]}}},
-                  "typeOfRealEstate": { "comment": [], "status": "UNSELECTED", "value": typeOfRealEstate(a) },
-                  "frontWidth": { "comment": [], "status": "UNSELECTED", "value": frontWidth(a) },
-                  "endWidth": { "comment": [], "status": "UNSELECTED", "value": frontWidth(a) },
-                  "facade": { "comment": [], "status": "UNSELECTED", "value": facade(a) },
-                  "houseDirection": { "comment": [], "status": "UNSELECTED", "value": houseDirection_ },
-                  "landSize": { "comment": [], "status": "UNSELECTED", "value": landSize(a) },
-                  "contact": { "name": { "comment": [], "status": "UNSELECTED", "value": name(a) },
+               "mediaInfo": {},
+               "houseInfo": { "value": houseInfo(a)},
+               "propertyBasicInfo": { "landType": { "value": propertyBasicInfo(a) },
+                  "accessibility": { "value": accessibility(a) },
+                  "distanceToNearestRoad": { "value": 0 },
+                  "frontRoadWidth": { "value": 0 },
+                  "address": { "value": address_[0] },
+                  "description": { "value": a['content'] },
+                  "geolocation": { "value":{
+                        "latitude": { "value": address_[1] },
+                        "longitude": { "value": address_[2]}}},
+                  "typeOfRealEstate": { "value": typeOfRealEstate(a) },
+                  "frontWidth": { "value": frontWidth(a) },
+                  "endWidth": { "value": frontWidth(a) },
+                  "facade": { "value": facade(a) },
+                  "houseDirection": { "value": houseDirection_ },
+                  "landSize": { "value": landSize(a) },
+                  "contact": { "name": { "value": name(a) },
                      "role": "houseOwner",
-                     "phoneNumber": { "comment": [], "status": "UNSELECTED", "value": numberPhone(a) },
-                     "avatarUrl": { "comment": [], "status": "UNSELECTED", "value": avatarUrl(a) }},
-                  "price": { "comment": [], "status": "UNSELECTED", "value": price_ },
-                  "unitPrice": { "comment": [], "status": "UNSELECTED", "value": "billion" },
-                  "yearOfConstruction": { "comment": [], "status": "UNSELECTED", "value": None },
-                  "saleHistory": { "time": { "comment": [], "status": "UNSELECTED", "value": 0 },
-                     "price": { "comment": [], "status": "UNSELECTED", "value": 0 }},
-                  "amenities": { "comment": [], "status": "UNSELECTED", "value": {
-                        "amenityStatus": amenities(a), "bathRoom": [], "bedRoomAndLaundry": [], "kitchenAndDining": [], "others": [], }},
-                  "peopleCulturalStandard": { "comment": [], "status": "UNSELECTED", "value": "high" },
-                  "publicFacilities": { "comment": [], "status": "UNSELECTED", "value": [] },
-                  "downside": { "comment": [], "status": "UNSELECTED", "value": [] }},
-               "saleInfo": { "potentialAnalysis": { # ///
-                     "marketPrice": { "comment": [], "status": "UNSELECTED", "value": 5000000000 },
-                     "expensesForRenovationOrExpansion": { "comment": [],"status": "UNSELECTED","value": 0 },
-                     "estimatedProfit": {"comment": [],"status": "UNSELECTED","value": 0 },
-                     "threeYearFuturePricePotential": { "comment": [],"status": "UNSELECTED","value": 0 },
-                     "fiveYearFuturePricePotential": {"comment": [],"status": "UNSELECTED","value": 0  },
-                     "cashFlow": {"comment": [], "status": "UNSELECTED", "value": 0  },
-                     "monthlyCashFlow": {"comment": [],"status": "UNSELECTED", "value": 0 },
-                     "financialLeverage": {"comment": [],"status": "UNSELECTED","value": 0 },
-                     "liquidity": { "comment": [],"status": "UNSELECTED","value": "high" }}},
-               "crawlInfo": { "id": a['code'], "source" : 's10','time' : time(a)}}
+                     "phoneNumber": { "value": numberPhone(a) },
+                     "avatarUrl": { "value": avatarUrl(a) }},
+                  "price": { "value": price_ },
+                  "unitPrice": { "value": "billion" },
+                  },
+               "saleInfo": { },
+               "crawlInfo": { "id": a['code'], "source" : 's10','time' : time(a), 'db_create_time': datetime.now()}}
 
 
    return data_merge

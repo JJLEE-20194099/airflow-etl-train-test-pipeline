@@ -6,6 +6,7 @@ from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
 from kafka import KafkaProducer, KafkaConsumer
 from utils.meeyland_util import transferMeeyland
+from kafka import TopicPartition
 import json
 from tqdm import tqdm
 from consume.utils import Redis
@@ -39,7 +40,7 @@ class Kafka:
             value_deserializer=lambda x: json.loads(x.decode("utf-8")),
             max_poll_records=10
         )
-        consumer.subscribe(kafka_topic)
+        consumer.assign([TopicPartition(topic, 0) for topic in kafka_topic])
         return consumer
 
     def send_data(self, data,kafka_topic):
@@ -70,7 +71,7 @@ class Kafka:
         Returns:
             _type_ : consumer
         """
-        consumer = KafkaConsumer(bootstrap_servers=['localhost:9092', 'localhost:9093', 'localhost:9094'], auto_offset_reset='earliest', enable_auto_commit=True, group_id=kafka_group_id,value_deserializer=lambda x: x.decode('utf-8'))
+        consumer = KafkaConsumer(bootstrap_servers=['localhost:9092', 'localhost:9093', 'localhost:9094'], auto_offset_reset='earliest', enable_auto_commit=False, group_id=kafka_group_id,value_deserializer=lambda x: x.decode('utf-8'))
         consumer.subscribe(kafka_topic)
         return consumer
 
@@ -94,29 +95,27 @@ def processMeeyland(msg, KafkaInstance):
     return None
 
 
-def clean_meeyland():
+def clean():
     KafkaInstance = Kafka(broker_id = 0)
     consumer = KafkaInstance.kafka_consumer("raw_meeyland", ["raw_meeyland"])
-    for msg in tqdm(consumer):
+    # for msg in tqdm(consumer):
+    #     consumer.commit()
+    #     print(msg)
+    #     if Redis().check_id_exist(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata'):
+    #         print("Ignore Processed Messages")
+    #         continue
+    #     Redis().add_id_to_set(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata')
+    #     processMeeyland(msg,KafkaInstance )
 
-        if Redis().check_id_exist(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata'):
-            print("Ignore Processed Messages")
-            continue
-        Redis().add_id_to_set(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata')
-        processMeeyland(msg,KafkaInstance )
-
-
-default_args = {
-    'owner': 'airflow',
-    'start_date': datetime(2021, 5, 17),
-    'retries': 0
-}
-
-dag = DAG('clean_raw_data', default_args=default_args, schedule_interval='0 10,19 * * *', catchup=False)
-clean_meeyland = PythonOperator(task_id='clean_raw_data', python_callable=clean_meeyland, dag=dag)
-
-[clean_meeyland]
-
+    while True:
+        msg_pack = consumer.poll(timeout_ms=500)
+        for tp, messages in msg_pack.items():
+            for message in messages:
+                # message value and key are raw bytes -- decode if necessary!
+                # e.g., for unicode: `message.value.decode('utf-8')`
+                print ("%s:%d:%d: key=%s value=%s" % (tp.topic, tp.partition,
+                                                    message.offset, message.key,
+                                                    message.value))
 
 
-# clean_meeyland()
+clean()

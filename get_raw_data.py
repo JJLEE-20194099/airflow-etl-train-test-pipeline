@@ -125,19 +125,8 @@ def crawl_meeyland_by_page(page):
     return []
 
 
-def crawl_meeyland():
-    for page in tqdm(range(50, 500)):
+def crawl():
+    for page in tqdm(range(1, 5)):
         data = crawl_meeyland_by_page(page)
         time.sleep(5)
-
-default_args = {
-    'owner': 'airflow',
-    'start_date': datetime(2021, 5, 17),
-    'retries': 0
-}
-dag = DAG('get_raw_data', default_args=default_args, schedule_interval='0 10,19 * * *', catchup=False)
-crawl_meeyland = PythonOperator(task_id='get_raw_data', python_callable=crawl_meeyland, dag=dag)
-
-[crawl_meeyland]
-
-# crawl_meeyland()
+crawl()

@@ -24,6 +24,7 @@ from utils.train_func import train_model_by_city_data_and_feature_version
 from src.extensions.batching.batch_processor import BatchProcessor
 from src.extensions.batching.models import BatchIn, BatchOut
 
+from datetime import datetime, timedelta
 
 app = FastAPI()
 
@@ -64,7 +65,10 @@ def build_offline_batch():
 
     # hn_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hà Nội"}))
     # hcm_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hồ Chí Minh"}))
-    full_offline_batch_data = list(collection.find({}))
+
+    start_date = datetime.now() - timedelta(days = 270)
+
+    full_offline_batch_data = list(collection.find({ "quantity": { "$gt": start_date } }))
 
     # result = build_offline_batch_data({
     #     "hn": hn_offline_batch_data,
