@@ -92,6 +92,8 @@ def processMeeyland(msg, KafkaInstance):
         if status:
             print("Process New Message and Send Message Done")
             return dataMeeyland
+    else:
+        print("None None None")
     return None
 
 
@@ -119,7 +121,7 @@ def clean():
                     continue
                 print("Consume Message in Topic:", tp.topic, "Partition:", tp.partition, "Offset:", message.offset)
                 Redis().add_id_to_set(f'meeyland_offset_{tp.partition}_{hash_str}', 'meeyland_clean_rawdata')
-                processMeeyland(message,KafkaInstance )
+                processMeeyland(message,KafkaInstance)
 
                 cnt += 1
         if cnt == 0:
