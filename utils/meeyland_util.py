@@ -1,8 +1,8 @@
-import datetime
 import json
 import re
 
 from datetime import datetime
+import time as ti
 
 with open('./streets.json', 'r') as f:
    streets = json.load(f)
@@ -36,7 +36,7 @@ def certificateOfLandUseRight(a):
 def time(a):
    date = a['publishedDate']
    # str = '2021-05-20T00:00:00.000Z' convert to '2021-05-20T00:00:00'
-   date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
+   date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
    return date.strftime('%Y-%m-%dT%H:%M:%S')
 
 def propertyType(a):
@@ -268,7 +268,7 @@ def transferMeeyland(a):
                   "unitPrice": { "value": "billion" },
                   },
                "saleInfo": { },
-               "crawlInfo": { "id": a['code'], "source" : 's10','time' : time(a), 'db_create_time': datetime.now()}}
+               "crawlInfo": { "id": a['code'], "source" : 's10','time' : time(a), 'db_create_timestamp': ti.time()}}
 
 
    return data_merge

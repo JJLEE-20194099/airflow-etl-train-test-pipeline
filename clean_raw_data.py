@@ -101,21 +101,34 @@ def clean():
     # for msg in tqdm(consumer):
     #     consumer.commit()
     #     print(msg)
-    #     if Redis().check_id_exist(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata'):
-    #         print("Ignore Processed Messages")
-    #         continue
-    #     Redis().add_id_to_set(f'meeyland_offset_{msg.offset}', 'meeyland_clean_rawdata')
-    #     processMeeyland(msg,KafkaInstance )
+    #
 
+    n_tries = 0
     while True:
-        msg_pack = consumer.poll(timeout_ms=500)
+        msg_pack = consumer.poll(timeout_ms=60000)
+        cnt = 0
         for tp, messages in msg_pack.items():
             for message in messages:
                 # message value and key are raw bytes -- decode if necessary!
                 # e.g., for unicode: `message.value.decode('utf-8')`
-                print ("%s:%d:%d: key=%s value=%s" % (tp.topic, tp.partition,
-                                                    message.offset, message.key,
-                                                    message.value))
+
+                hash_str = hash(message.value['content'])
+
+                if Redis().check_id_exist(f'meeyland_offset_{tp.partition}_{hash_str}', 'meeyland_clean_rawdata'):
+                    print("Ignore Processed Messages")
+                    continue
+                print("Consume Message in Topic:", tp.topic, "Partition:", tp.partition, "Offset:", message.offset)
+                Redis().add_id_to_set(f'meeyland_offset_{tp.partition}_{hash_str}', 'meeyland_clean_rawdata')
+                processMeeyland(message,KafkaInstance )
+
+                cnt += 1
+        if cnt == 0:
+            n_tries += 1
+
+        if n_tries >= 10:
+            break
+
+
 
 
 clean()

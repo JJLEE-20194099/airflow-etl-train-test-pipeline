@@ -6,3 +6,5 @@ sudo /home/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic r
 sudo /home/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9093 --topic raw_meeyland --delete
 sudo /home/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9094 --topic raw_meeyland --delete
 
+sudo /home/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic datn_meeyland --delete
+
