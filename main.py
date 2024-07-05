@@ -79,7 +79,17 @@ def build_offline_batch():
     print(full_offline_batch_data[0])
     result = build_offline_batch_data(full_offline_batch_data)
 
-    return result
+    collection = __database["dataset_metadata"]
+
+    dataset_metadata = {
+        "create_timestamp": time.time(),
+        "id_list": result["id_list"],
+        "version_tag": result["version_tag"]
+    }
+
+    return collection.insert_one(dataset_metadata)
+
+
 
 priority_map = {
     'cat': 9,

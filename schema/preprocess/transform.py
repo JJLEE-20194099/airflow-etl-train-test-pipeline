@@ -119,7 +119,11 @@ def get_compact_realestate_info(item):
         except:time = ""
 
 
+        _id = str(item['_id'])
+
+
         return {
+            "_id": _id,
             "numberOfFloors": numberOfFloors,
             "numberOfBathRooms": numberOfBathRooms,
             "numberOfLivingRooms": numberOfBedRooms,
