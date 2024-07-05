@@ -91,7 +91,9 @@ def taskflow():
         for city in ['hcm', 'hn']:
             for model_name in ['abr', 'cat', 'etr', 'gbr', 'knr', 'la', 'lgbm', 'linear', 'mlp', 'rf', 'ridge', 'xgb']:
                 dag_id = f"train_{city}_{model_name}_model"
-                c.trigger_dag(dag_id=dag_id, run_id=f'{dag_id}_{datetime.now()}', conf={})
+                run_id = f'{dag_id}_{datetime.now()}'
+                run_id = "".join([char for char in run_id if char.isalpha()])
+                c.trigger_dag(dag_id=dag_id, run_id=run_id, conf={})
 
 
 
