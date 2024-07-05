@@ -47,10 +47,10 @@ def taskflow():
         payload = {}
         headers = {}
         response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.json())
+        return response.json()
 
     @task(task_id="extract_feature", retries=0)
-    def extract_feature():
+    def extract_feature(dataset_metadata):
 
         print("Start to create feature view")
         url = f"{os.getenv('FEAST_SERVER')}/get_store"
@@ -63,10 +63,11 @@ def taskflow():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.json())
         print("End to create feature view")
+        return dataset_metadata
 
 
     @task(task_id="build_training_dataset", retries=0)
-    def create_dataset():
+    def create_dataset(dataset_metadata):
 
         print("Start to create feature dataset")
         url = f"{os.getenv('FEAST_SERVER')}/build-training-dataset"
@@ -75,12 +76,14 @@ def taskflow():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.json())
         print("End to create feature dataset")
+        print(dataset_metadata)
+        return dataset_metadata
 
 
     t1 = crawl_clean_insert_data()
     t2 = build_data()
-    t3 = extract_feature()
-    t4 = create_dataset()
+    t3 = extract_feature(t2)
+    t4 = create_dataset(t3)
 
     t1 >> t2 >> t3 >> t4
 dag = taskflow()
