@@ -4,6 +4,10 @@ from airflow import DAG
 from airflow.decorators import task, dag
 from utils.train_func import train_model_by_city_data_and_feature_version
 from datetime import datetime, timedelta
+from airflow.utils.dates import days_ago
+from airflow.models import DagRun
+from airflow import settings
+from airflow import models
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -12,6 +16,15 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from airflow.sensors.external_task_sensor import ExternalTaskSensor
+
+
+def get_execution_date(dt, **kwargs):
+    session = settings.Session()
+    dr = session.query(DagRun)\
+        .filter(DagRun.dag_id == kwargs['task'].external_dag_id)\
+        .order_by(DagRun.execution_date.desc())\
+        .first()
+    return dr.execution_date
 
 
 def create_dag(dag_id, schedule, tags, default_args, city, model_name):
@@ -45,7 +58,8 @@ def create_dag(dag_id, schedule, tags, default_args, city, model_name):
             start_date=datetime(2024, 7, 1),
             allowed_states=['success'],
             failed_states=['failed', 'skipped'],
-            mode = 'reschedule'
+            mode = 'reschedule',
+            execution_date_fn=get_execution_date
         )
 
         wait_for_data_pipeline >> [train_v0(), train_v1(), train_v2(), train_v4(), train_v5()]

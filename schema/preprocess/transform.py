@@ -119,7 +119,7 @@ def get_compact_realestate_info(item):
         except:time = ""
 
 
-        _id = str(item['_id'])
+        _id = f"{str(item['_id'])}"
 
 
         return {

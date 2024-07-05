@@ -277,7 +277,7 @@ def build_offline_batch_data(standard_data):
     fv_config_path_list = create_new_candidate_for_feast_fv(data, version_tag)
 
     sample_data = nan_2_none(data.to_dict('records')[0])
-    sample_data['_id'] = str(sample_data['_id'])
+    sample_data['_id'] = f"{sample_data['_id']}"
 
     return {
         "fv_config_path_list": fv_config_path_list,

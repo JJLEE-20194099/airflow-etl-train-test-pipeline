@@ -88,13 +88,19 @@ def build_offline_batch():
         "version_tag": result["version_tag"]
     }
 
+
     insert_result = collection.insert_one(dataset_metadata)
-    return {
-        "dataset_id": str(insert_result.inserted_id),
+
+    del dataset_metadata['_id']
+
+    result = {
+        "dataset_id": f'{insert_result.inserted_id}',
         "fv_config_path_list": result["fv_config_path_list"],
         "sample_data": result["sample_data"],
         "value": dataset_metadata
     }
+
+    return result
 
 
 priority_map = {
