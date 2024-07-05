@@ -17,6 +17,7 @@ from schema.preprocess.quadtree import get_nearest_feature
 from schema.realestate import RealEstateData
 from schema.version import ModelNameCityVersion
 from schema.preprocess.encode import encoder_dict
+from schema.mlops import MLOpsEXPData
 
 from utils.infer_tool import get_inference_by_city_version
 from utils.train_func import train_model_by_city_data_and_feature_version
@@ -54,7 +55,7 @@ def build_training_dataset():
 
 
 @app.post("/build-offline-batch-data")
-def build_offline_batch(body):
+def build_offline_batch(body: MLOpsEXPData):
 
     body = dict(body)
     exp_id = body['exp_id']
