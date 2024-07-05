@@ -90,7 +90,6 @@ population_df = pd.read_csv('schema/preprocess/data/table/process_population.csv
 
 def build_offline_batch_data(standard_data):
 
-    print("Build Offline Batch Size:", len(standard_data))
 
     data = [get_compact_realestate_info(item) for item in standard_data]
     data = [item for item in data if item != {}]
@@ -102,6 +101,8 @@ def build_offline_batch_data(standard_data):
 
     data = data.drop_duplicates(subset = ['district', 'city', 'street', 'ward', 'numberOfFloors', 'numberOfLivingRooms', 'numberOfBathRooms', 'landType', 'price', 'description'], keep = 'first')
     data = data.reset_index(drop = True)
+
+    print("Build Offline Batch Size:", len(data))
     print("Convert Obj Data to DataFrame")
 
     data['district'] = data['district'].apply(preprocess_text)
