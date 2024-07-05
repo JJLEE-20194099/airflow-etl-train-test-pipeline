@@ -9,6 +9,7 @@ from utils.train_func import train_model_by_city_data_and_feature_version
 from datetime import datetime, timedelta
 import requests
 import json
+from airflow import XComArg
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -45,8 +46,11 @@ def taskflow():
     def build_data():
         url = f"{os.getenv('BKPRICE_SERVER')}/build-offline-batch-data"
         payload = {}
-        headers = {}
+        headers = {
+        'Content-Type': 'application/json'
+        }
         response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
         return response.json()
 
     @task(task_id="extract_feature", retries=0)

@@ -92,7 +92,7 @@ def build_offline_batch():
     return {
         "dataset_id": str(insert_result.inserted_id),
         "fv_config_path_list": result["fv_config_path_list"],
-        "sample_datae": result["sample_data"],
+        "sample_data": result["sample_data"],
         "value": dataset_metadata
     }
 
