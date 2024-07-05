@@ -84,10 +84,12 @@ def build_offline_batch():
     dataset_metadata = {
         "create_timestamp": time.time(),
         "id_list": result["id_list"],
+        "size": len(result["id_list"]),
         "version_tag": result["version_tag"]
     }
 
-    return collection.insert_one(dataset_metadata)
+    insert_result = collection.insert_one(dataset_metadata)
+    return str(insert_result.inserted_id)
 
 
 
