@@ -63,7 +63,7 @@ def plot_coefficients(model, feature_names, style="seaborn", plot_size=(30, 24))
     return fig
 
 def plot_correlation_matrix_and_save(
-    df, style="seaborn", plot_size=(30, 24), path="/tmp/corr_plot.png"
+    df, style="seaborn", plot_size=(60, 60), path="/tmp/corr_plot.png"
 ):
     with plt.style.context(style=style):
         fig, ax = plt.subplots(figsize=plot_size)

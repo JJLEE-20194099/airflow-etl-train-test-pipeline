@@ -54,7 +54,10 @@ def build_training_dataset():
 
 
 @app.post("/build-offline-batch-data")
-def build_offline_batch():
+def build_offline_batch(body):
+
+    body = dict(body)
+    exp_id = body['exp_id']
 
     connection_str = os.getenv('REALESTATE_DB')
     __client = pymongo.MongoClient(connection_str)
@@ -67,7 +70,7 @@ def build_offline_batch():
     # hn_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hà Nội"}))
     # hcm_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hồ Chí Minh"}))
 
-    start_date = time.time() - 2 * 60 * 60
+    start_date = time.time() - 24 * 60 * 60
 
     full_offline_batch_data = list(collection.find({ "crawlInfo.db_create_timestamp": { "$gt": start_date } }))
 
@@ -97,7 +100,8 @@ def build_offline_batch():
         "dataset_id": f'{insert_result.inserted_id}',
         "fv_config_path_list": result["fv_config_path_list"],
         "sample_data": result["sample_data"],
-        "value": dataset_metadata
+        "value": dataset_metadata,
+        "exp_id": exp_id
     }
 
     return result
