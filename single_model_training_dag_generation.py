@@ -8,6 +8,10 @@ from airflow.utils.dates import days_ago
 from airflow.models import DagRun
 from airflow import settings
 from airflow import models
+from airflow.models import DagModel
+from airflow.utils.session import provide_session
+from croniter import croniter
+from datetime import datetime
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -18,13 +22,32 @@ warnings.filterwarnings('ignore')
 from airflow.sensors.external_task_sensor import ExternalTaskSensor
 
 
-def get_execution_date(dt, **kwargs):
-    session = settings.Session()
-    dr = session.query(DagRun)\
-        .filter(DagRun.dag_id == kwargs['task'].external_dag_id)\
-        .order_by(DagRun.execution_date.desc())\
-        .first()
-    return dr.execution_date
+def get_execution_date_of_dependent_dag(external_dag_id):
+    @provide_session
+    def execution_date_fn(exec_date, session=None,  **kwargs):
+        external_dag = session.query(DagModel).filter(DagModel.dag_id == external_dag_id).one()
+        external_dag_schedule_interval = external_dag.schedule_interval
+
+        current_dag = kwargs['dag']
+        current_dag_schedule_interval = current_dag.schedule_interval
+
+        current_run_time = croniter(current_dag_schedule_interval, exec_date).get_next(datetime)
+        external_cron_iterator = croniter(external_dag_schedule_interval, current_run_time)
+
+        def check_if_external_dag_has_schedule_at_current_time(cron_iterator, current_time):
+            __previous_run_time = cron_iterator.get_prev(datetime)
+            current_run_time = cron_iterator.get_next(datetime)
+            return True if current_run_time == current_time else False
+
+        if check_if_external_dag_has_schedule_at_current_time(external_cron_iterator, current_run_time):
+             external_cron_iterator = croniter(external_dag_schedule_interval, current_run_time)
+             return external_cron_iterator.get_prev(datetime)
+        else:
+            external_cron_iterator = croniter(external_dag_schedule_interval, current_run_time)
+            __dag_last_run_time = external_cron_iterator.get_prev(datetime)
+            return external_cron_iterator.get_prev(datetime)
+
+    return execution_date_fn
 
 
 def create_dag(dag_id, schedule, tags, default_args, city, model_name):
@@ -55,16 +78,19 @@ def create_dag(dag_id, schedule, tags, default_args, city, model_name):
             task_id='wait_for_data_pipeline',
             external_dag_id='data_pipeline',
             external_task_id='build_training_dataset',
-            start_date=datetime(2024, 7, 1),
+            poke_interval=60,
+            timeout=180,
             allowed_states=['success'],
             failed_states=['failed', 'skipped'],
             mode = 'reschedule',
-            execution_date_fn=get_execution_date
+            execution_date_fn=get_execution_date_of_dependent_dag('data_pipeline')
         )
 
         wait_for_data_pipeline >> [train_v0(), train_v1(), train_v2(), train_v4(), train_v5()]
 
     generated_dag = taskflow()
+
+
 
 
 for city in ['hcm', 'hn']:
