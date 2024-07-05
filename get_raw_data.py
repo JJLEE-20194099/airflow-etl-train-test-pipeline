@@ -129,4 +129,4 @@ def crawl():
     for page in tqdm(range(1, 50)):
         data = crawl_meeyland_by_page(page)
         time.sleep(5)
-crawl()
+# crawl()

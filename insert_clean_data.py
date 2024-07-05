@@ -4,6 +4,7 @@ import json
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from airflow.operators.python_operator import PythonOperator
+from kafka import TopicPartition
 from airflow import DAG
 import os
 import math
@@ -39,36 +40,50 @@ def insert():
             value_deserializer=lambda x: json.loads(x.decode("utf-8")),
             max_poll_records=10
         )
-    consumer.subscribe(kafka_topic)
+    consumer.assign([TopicPartition(topic, 0) for topic in kafka_topic])
 
     update_data_list = []
     updated_ids = []
     operations = []
 
     collection = __database["realestate_listing"]
-    for message in tqdm(consumer):
-        if Redis().check_id_exist(f'meeyland_offset_{message.offset}', 'meeyland_insert_db'):
-            continue
 
-        message_data = message.value
+    n_tries = 0
+    while True:
+        msg_pack = consumer.poll(timeout_ms=120000)
+        cnt = 0
+        for tp, messages in msg_pack.items():
+            for message in messages:
+                message_data = message.value
 
-        Redis().add_id_to_set(f'meeyland_offset_{message.offset}', 'meeyland_insert_db')
-        record = nan_2_none(message_data)
-        operations.append(
-            InsertOne(record)
-        )
+                hash_str = hash(message_data["propertyBasicInfo"]["description"]["value"])
 
-        if len(operations) >= 20:
-            collection.bulk_write(operations,ordered=False)
-            print(f"Insert batch size - {len(operations)} clean realestates to database")
-            operations = []
+                if Redis().check_id_exist(f'meeyland_offset_{tp.partition}_{hash_str}', 'meeyland_insert_db'):
+                    continue
 
+                Redis().add_id_to_set(f'meeyland_offset_{tp.partition}_{hash_str}', 'meeyland_insert_db')
+                record = nan_2_none(message_data)
+                operations.append(
+                    InsertOne(record)
+                )
+                print("Insert 1 ok")
+                cnt += 1
 
-    # print(collection')
+                if len(operations) >= 20:
+                    collection.bulk_write(operations,ordered=False)
+                    print(f"Insert batch size - {len(operations)} clean realestates to database")
+                    operations = []
+        if cnt == 0:
+            n_tries += 1
+
+        # if n_tries >= 10:
+        #     break
+
     if len(operations):
         collection.bulk_write(operations,ordered=False)
 
-    # => Trigger training AI Model
+    return n_tries
 
 
 
+# print(insert())

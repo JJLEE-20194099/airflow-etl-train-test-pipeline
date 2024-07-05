@@ -18,17 +18,25 @@ warnings.filterwarnings('ignore')
 @dag("data_pipeline", tags = ["data_pipeline"], schedule='@daily', catchup=False, start_date=datetime(2024, 6, 6))
 def taskflow():
 
-    @task(task_id="get_raw_data", retries=0)
-    def crawl_data():
-        crawl()
+    # @task(task_id="get_raw_data", retries=0)
+    # def crawl_data():
+    #     crawl()
 
-    @task(task_id="clean_raw_data", retries=0)
-    def clean_data():
-        clean()
+    # @task(task_id="clean_raw_data", retries=0)
+    # def clean_data():
+    #     clean()
 
-    @task(task_id="insert_clean_data", retries=0)
-    def insert_data():
-        insert()
+    # @task(task_id="insert_clean_data", retries=0)
+    # def insert_data():
+    #     insert()
+
+    @task(task_id="crawl_clean_insert", retries=0)
+    def crawl_clean_insert_data():
+        print("Start to delete data from queue")
+        os.system('sh delete_data.sh')
+        print("Start to run datapipeline")
+        os.system('sh datapipeline_oneshot.sh')
+
 
     @task(task_id="build_offline_batch_data", retries=0)
     def build_data():
@@ -38,10 +46,8 @@ def taskflow():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.json())
 
-    t1 = crawl_data()
-    t2 = clean_data()
-    t3 = insert_data()
-    t4 = build_data()
+    t1 = crawl_clean_insert_data()
+    t2 = build_data()
 
-    t1 >> t2 >> t3 >> t4
+    t1 >> t2
 dag = taskflow()

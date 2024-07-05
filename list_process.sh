@@ -1,1 +1,1 @@
-ps -ef | grep unvicorn
+ps -ef | grep python
