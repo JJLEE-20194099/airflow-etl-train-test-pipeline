@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 import requests
 import json
 from airflow import XComArg
+from airflow.api.client.local_client import Client
+import time
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -83,11 +85,23 @@ def taskflow():
         print(dataset_metadata)
         return dataset_metadata
 
+    @task(task_id="trigger_training_ai_model", retries=0)
+    def trigger_training_ai_model(dataset_metadata):
+        c = Client(None, None)
+        for city in ['hcm', 'hn']:
+            for model_name in ['abr', 'cat', 'etr', 'gbr', 'knr', 'la', 'lgbm', 'linear', 'mlp', 'rf', 'ridge', 'xgb']:
+                dag_id = f"train_{city}_{model_name}_model"
+                c.trigger_dag(dag_id=dag_id, run_id=f'{dag_id}_{datetime.now()}', conf={})
+
+
+
 
     t1 = crawl_clean_insert_data()
     t2 = build_data()
     t3 = extract_feature(t2)
     t4 = create_dataset(t3)
+    t5 = trigger_training_ai_model(t4)
 
-    t1 >> t2 >> t3 >> t4
+
+    t1 >> t2 >> t3 >> t4 >> t5
 dag = taskflow()
