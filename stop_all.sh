@@ -1,6 +1,2 @@
-tmux kill-session -t feast_worker
-tmux kill-session -t airflow_worker
-tmux kill-session -t mlflow_worker
-sh stop_feast.sh
-sh stop_mlflow.sh
-sh stop_airflow.sh
+tmux kill-server
+kill -9 $(lsof -t -i:2001)

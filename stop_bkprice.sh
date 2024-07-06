@@ -1,4 +1,4 @@
-kill $(lsof -t -i:2001)
+kill -9 $(lsof -t -i:2001)
 tmux kill-session -t hcm_cat
 tmux kill-session -t hcm_lgbm
 tmux kill-session -t hcm_xgb

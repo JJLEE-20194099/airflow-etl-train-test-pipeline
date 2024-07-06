@@ -4,4 +4,3 @@ tunnels:
   fourth-app:
       addr: 2001
       proto: http
-      host_header: datn-bkprice-app.example.ngrok.com
