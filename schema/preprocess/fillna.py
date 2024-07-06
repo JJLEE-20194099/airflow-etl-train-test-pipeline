@@ -42,7 +42,7 @@ def fillna(obj, cat_cols = cat_cols):
 
     for col in cat_cols:
         if obj[col] is None:
-            obj[col] = 100
+            obj[col] = 5000
 
     city = obj['city']
 

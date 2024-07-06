@@ -8,7 +8,7 @@ from schema.preprocess.fillna import fillna, nan_2_none
 from schema.preprocess.gmm_tool import get_gmm_feature
 from schema.preprocess.pca_tool import get_pca_feature
 from schema.preprocess.quadtree import get_nearest_feature
-from schema.preprocess.text import preprocess_text
+from schema.preprocess.text import concat, preprocess_text
 from schema.preprocess.transform import get_compact_realestate_info
 
 from schema.preprocess.encode import encoder_dict
@@ -131,6 +131,7 @@ def build_offline_batch_data(standard_data):
     data['street'] = data['street'].apply(preprocess_text)
     data['description'] = data['description'].apply(preprocess_text)
 
+
     print("Handle Text in Data Done")
 
     data['endWidth'] = data['endWidth'].replace(0, np.nan)
@@ -158,11 +159,20 @@ def build_offline_batch_data(standard_data):
 
     data = data.drop_duplicates().sample(frac = 1.0)
 
-    hn_data = data[data['city'] == 'hà nội'].head(1000)
-    hcm_data = data[data['city'] == 'hồ chí minh'].head(1000)
+    hn_data = data[data['city'] == 'hà nội']
+    hcm_data = data[data['city'] == 'hồ chí minh']
+
+    # hn_data = data[data['city'] == 'hà nội']
+    # hcm_data = data[data['city'] == 'hồ chí minh']
 
     data = pd.concat([hn_data, hcm_data])
     data = data.reset_index(drop = True)
+
+
+    data['ward'] = data.apply(lambda x: concat(x['district'], x['ward']), axis = 1)
+    data['street'] = data.apply(lambda x: concat(x['ward'], x['street']), axis = 1)
+
+    # print(data[['street', 'ward']])
 
     print("Start: make facility features")
 
@@ -257,6 +267,8 @@ def build_offline_batch_data(standard_data):
     data['acreage_ratio_with_meanLandSize'] = data['acreage'] / data['meanLandSize']
 
     del data['meanLandSize']
+
+    # print(data[['street', 'frontWidth']])
 
     obj_list = data.to_dict('records')
     obj_list = [rename_obj(obj) for obj in tqdm(obj_list)]

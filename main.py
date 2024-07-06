@@ -71,7 +71,7 @@ def build_offline_batch(body: MLOpsEXPData):
     # hn_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hà Nội"}))
     # hcm_offline_batch_data = list(collection.find({"propertyBasicInfo.address.value.city": "Hồ Chí Minh"}))
 
-    start_date = time.time() - 24 * 60 * 60
+    start_date = time.time() - 24 * 60 * 60 * 7
 
     full_offline_batch_data = list(collection.find({ "crawlInfo.db_create_timestamp": { "$gt": start_date } }))
 
