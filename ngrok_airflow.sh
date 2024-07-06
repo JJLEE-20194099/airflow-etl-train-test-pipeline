@@ -1,0 +1,1 @@
+sudo docker run --network=host -it -e NGROK_AUTHTOKEN=2isUc4CVvSanqE8bYNwRffRHWRG_6U1TknDcbnMkS1j4HdWrZ ngrok/ngrok http 8080

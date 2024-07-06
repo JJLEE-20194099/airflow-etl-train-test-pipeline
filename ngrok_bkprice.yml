@@ -1,0 +1,7 @@
+version: "2"
+authtoken: 2isZQOJ43dfKIbQFtvcRbTp9iSx_7rZcEsZpi6kZq7UttaZCc
+tunnels:
+  fourth-app:
+      addr: 2001
+      proto: http
+      host_header: datn-bkprice-app.example.ngrok.com

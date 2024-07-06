@@ -1,0 +1,18 @@
+version: "2"
+authtoken: 2isUc4CVvSanqE8bYNwRffRHWRG_6U1TknDcbnMkS1j4HdWrZ
+tunnels:
+  first-app:
+    addr: 8080
+    proto: http
+    host_header: datn-airflow-app.example.ngrok.com
+  second-app:
+    addr: 8889
+    proto: http
+    host_header: datn-feast-app.example.ngrok.com
+
+
+  third-app:
+    addr: 5000
+    proto: http
+    host_header: datn-mlflow-app.example.ngrok.com
+
