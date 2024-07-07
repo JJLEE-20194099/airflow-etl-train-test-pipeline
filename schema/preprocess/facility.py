@@ -113,7 +113,11 @@ def rename_facility_col(obj, cols, distance):
     result = dict()
 
     for col in cols:
-        result[rename_col_dict[col]] = obj[col]
+        try:
+            result[rename_col_dict[col]] = obj[col]
+        except:
+            result[rename_col_dict[col]] = 0
+
 
     return result
 
