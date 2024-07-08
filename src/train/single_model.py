@@ -12,7 +12,7 @@ from airflow import DAG
 from feast.infra.offline_stores.contrib.postgres_offline_store.postgres import (
     PostgreSQLOfflineStore
 )
-
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, explained_variance_score
 from src.helpers.mlflow_tool import create_experiment
 from src.helpers.training import train_test_split_by_col
 from utils.plot import plot_correlation_matrix_and_save, plot_prediction_error, plot_qq, plot_residuals, plot_time_series
@@ -42,7 +42,7 @@ def mlflow_train_model(
     experiment_id = create_experiment(experiment_name)
 
     print("Start to calculating correlation map")
-    corr_path = f"/tmp/{model_name}_corr_plot.png"
+    corr_path = f"/home/long/airflow/dags/src/files/{model_name}_corr_plot.png"
     plot_correlation_matrix_and_save(train_df[selected_features + [target_feature]], path = corr_path)
 
     timestamp = datetime.now().isoformat().split(".")[0].replace(":", ".")
@@ -73,10 +73,32 @@ def mlflow_train_model(
 
         y_pred = model.predict(X_test)
 
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = mean_squared_error(y_test, y_pred, squared = False)
+        ev_score = explained_variance_score(y_test, y_pred)
+
+        mlflow.log_metric("TRUSTWORTHY_METRIC_RMSE", rmse)
+        mlflow.log_metric("TRUSTWORTHY_METRIC_MAE", mae)
+        mlflow.log_metric("TRUSTWORTHY_METRIC_EV", ev_score)
+
+        if model_name == 'xgb':
+            weights = list(model.best_estimator_.pretrained_model.feature_importances_)
+            feature_important_df = pd.DataFrame()
+            feature_important_df['features'] = selected_features
+            feature_important_df['importance_scale_weight'] = weights
+            feature_important_df = feature_important_df.sort_values(by = ['importance_scale_weight'], ascending=False)
+            feature_important_df = feature_important_df.reset_index(drop = True)
+
+            csv = os.path.join(tempdir, f'{model_name}_feature_importance.csv')
+            feature_important_df.to_csv(csv, index = False)
+
+            mlflow.log_artifact(csv, f'{model_name}_feature_importance')
+
         fig1 = plot_time_series(train_df, x_col = 'event_timestamp', y_col = target_feature, y_label_name = target_feature_alias)
         fig5 = plot_residuals(y_test, y_pred)
         fig7 = plot_prediction_error(y_test, y_pred)
         fig8 = plot_qq(y_test, y_pred)
+
 
         mlflow.log_figure(fig1, f"{model_name}_time_series_price.png")
         mlflow.log_figure(fig5, f"{model_name}_residuals_plot.png")

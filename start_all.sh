@@ -3,4 +3,5 @@ tmux new-session -d -s broker_worker 'cd /home/long/long/datn-crawlbot && sh res
 tmux new-session -d -s feast_worker 'cd /home/long/long/datn-crawlbot && sh restart_feast.sh'
 tmux new-session -d -s mlflow_worker 'cd /home/long/long/datn-crawlbot && sh restart_mlflow.sh'
 tmux new-session -d -s airflow_worker 'cd /home/long/long/datn-crawlbot && sh restart_airflow.sh'
+tmux new-session -d -s streamlit_demo_worker 'cd /home/long/long/datn-crawlbot && sh start_demoapp.sh'
 sh restart_bkprice.sh

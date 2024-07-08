@@ -73,8 +73,8 @@ def build_offline_batch(body: MLOpsEXPData):
 
     start_date = time.time() - 24 * 60 * 60 * 7
     new_offline_batch_data = list(collection.find({ "crawlInfo.db_create_timestamp": { "$gt": start_date } }))
-    old_offline_batch_data_hn = list(collection.find({ "crawlInfo.db_create_timestamp": { "$exists": False }, "propertyBasicInfo.address.value.city": "Hà Nội", "crawlInfo.time": { "$gt": "2023-07-04T16:08:46" }}).limit(100))
-    old_offline_batch_data_hcm = list(collection.find({ "crawlInfo.db_create_timestamp": { "$exists": False }, "propertyBasicInfo.address.value.city": "Hồ Chí Minh", "crawlInfo.time": { "$gt": "2023-07-04T16:08:46" }}).limit(100))
+    old_offline_batch_data_hn = list(collection.find({ "crawlInfo.db_create_timestamp": { "$exists": False }, "propertyBasicInfo.address.value.city": "Hà Nội", "crawlInfo.time": { "$gt": "2023-07-04T16:08:46" }}).limit(1000))
+    old_offline_batch_data_hcm = list(collection.find({ "crawlInfo.db_create_timestamp": { "$exists": False }, "propertyBasicInfo.address.value.city": "Hồ Chí Minh", "crawlInfo.time": { "$gt": "2023-07-04T16:08:46" }}).limit(1000))
 
     full_offline_batch_data = new_offline_batch_data + old_offline_batch_data_hn + old_offline_batch_data_hcm
 

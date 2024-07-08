@@ -1,6 +1,10 @@
 version: "2"
 authtoken: 2isZQOJ43dfKIbQFtvcRbTp9iSx_7rZcEsZpi6kZq7UttaZCc
 tunnels:
+  streamlit-demo-app:
+      addr: 8501
+      proto: http
+
   fourth-app:
       addr: 2001
       proto: http
