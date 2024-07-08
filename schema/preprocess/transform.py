@@ -1,4 +1,4 @@
-def get_compact_realestate_info(item):
+def get_compact_realestate_info(item, i = 0, exp_id = None):
     try:
         try:
             numberOfFloors = item['houseInfo']['value']['numberOfFloors']
@@ -119,7 +119,10 @@ def get_compact_realestate_info(item):
         except:time = ""
 
 
-        _id = f"{str(item['_id'])}"
+        try:
+            _id = f"{str(item['_id'])}"
+        except:
+            _id = f'{exp_id}_{i}'
 
 
         return {

@@ -54,6 +54,52 @@ def build_training_dataset():
     response = response.json()
 
 
+@app.post("/extract-feature-and-build-training-dataset-by-exp-id")
+def extract_feature_and_build_training_dataset_by_exp_id(body: MLOpsEXPData):
+    body = dict(body)
+    exp_id = body['exp_id']
+
+    connection_str = os.getenv('REALESTATE_DB')
+    __client = pymongo.MongoClient(connection_str)
+
+    database = 'realestate'
+    __database = __client[database]
+
+    collection = __database["mlops_exp"]
+
+    try:
+        data = list(collection.find({"exp_id": exp_id}))[0]["candidates"]
+
+        result = build_offline_batch_data(data, exp_id)
+
+        collection = __database["dataset_metadata"]
+
+        dataset_metadata = {
+            "create_timestamp": time.time(),
+            "id_list": result["id_list"],
+            "size": len(result["id_list"]),
+            "version_tag": result["version_tag"]
+        }
+
+
+        insert_result = collection.insert_one(dataset_metadata)
+
+        del dataset_metadata['_id']
+
+        result = {
+            "dataset_id": f'{insert_result.inserted_id}',
+            "fv_config_path_list": result["fv_config_path_list"],
+            "sample_data": result["sample_data"],
+            "value": dataset_metadata,
+            "exp_id": exp_id
+        }
+
+        return result
+    except Exception as e:
+        print(e)
+        return {}
+
+
 @app.post("/build-offline-batch-data")
 def build_offline_batch(body: MLOpsEXPData):
 

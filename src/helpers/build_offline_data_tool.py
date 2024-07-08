@@ -88,10 +88,10 @@ def create_new_candidate_for_feast_fv(candidate_df, version_tag):
 
 population_df = pd.read_csv('schema/preprocess/data/table/process_population.csv')
 
-def build_offline_batch_data(standard_data):
+def build_offline_batch_data(standard_data, exp_id = None):
 
 
-    data = [get_compact_realestate_info(item) for item in standard_data]
+    data = [get_compact_realestate_info(item, i, exp_id) for i, item in enumerate(standard_data)]
     data = [item for item in data if item != {}]
     data = [item for item in data if item['street'] != None]
     data = [item for item in data if item['district'] != None]
@@ -285,19 +285,26 @@ def build_offline_batch_data(standard_data):
     pca_df = pd.DataFrame([get_pca_feature(obj) for obj in obj_list])
     data = pd.concat([data, pca_df], axis = 1)
 
-    version_tag = f'demo1'
+
+    if exp_id is None:
+        version_tag = f'demo1'
+    else:
+        version_tag = f'mlops_exp1'
     fv_config_path_list = create_new_candidate_for_feast_fv(data, version_tag)
 
     sample_data = nan_2_none(data.to_dict('records')[0])
-    sample_data['_id'] = f"{sample_data['_id']}"
-
+    try:
+        sample_data['_id'] = f"{sample_data['_id']}"
+        id_list = data["_id"].tolist()
+    except:
+        sample_data['_id'] = f"{exp_id}_0"
+        id_list = [f"{exp_id}_{_}" for _ in range(len(data))]
     return {
         "fv_config_path_list": fv_config_path_list,
         "sample_data": sample_data,
-        "id_list": data["_id"].tolist(),
+        "id_list": id_list,
         "version_tag": version_tag
     }
-
 
 
 
