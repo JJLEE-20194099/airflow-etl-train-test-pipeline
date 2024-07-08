@@ -17,7 +17,7 @@ from schema.preprocess.quadtree import get_nearest_feature
 from schema.realestate import RealEstateData
 from schema.version import ModelNameCityVersion
 from schema.preprocess.encode import encoder_dict
-from schema.mlops import MLOpsEXPData
+from schema.mlops import MLOpsEXPData, MLOpsFullExpData, SourceEnum
 
 from utils.infer_tool import get_inference_by_city_version
 from utils.train_func import train_model_by_city_data_and_feature_version
@@ -276,3 +276,54 @@ async def predict_realestate_batch(batch: BatchIn):
     return get_inference_by_city_version(city = body['city'], version = body['version'], df = df)
 
 
+@app.post("/get-clean-data-from-source")
+def get_clean_data_from_source(body: MLOpsFullExpData):
+    body = dict(body)
+    exp_id = body["exp_id"]
+    num_page = body["num_page"]
+    source = body["source"]
+
+    print(exp_id, num_page, source)
+
+    if exp_id is None:
+        exp_id = f'EXP_ID_{datetime.now()}'
+        exp_id = ''.join([c for c in exp_id if c.isalnum() or c == "_"])
+
+    if source == "meeyland":
+        url = f"{os.getenv('CRAWLBOT_SERVER')}/meeyland/get_all_clean_data?num_of_page={num_page}"
+    elif source == 'batdongsan':
+
+        url = f"{os.getenv('CRAWLBOT_SERVER')}/batdongsan/get_all_clean_data?num_of_page={num_page}"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+    response = response.json()
+
+    data = {
+        "exp_id": exp_id,
+        "candidates": response,
+        "sample_data": response[0]
+    }
+
+    connection_str = os.getenv('REALESTATE_DB')
+    __client = pymongo.MongoClient(connection_str)
+
+    database = 'realestate'
+    __database = __client[database]
+
+    collection = __database["mlops_exp"]
+
+    exp = collection.find_one({"exp_id": exp_id})
+    if exp:
+        candidates = exp["candidates"] + response
+        data["candidates"] = candidates
+        collection.find_one_and_update({"exp_id": exp_id}, {'$set': {
+            "candidates": candidates
+        }})
+
+    else:
+        collection.insert_one(data)
+
+    return data
